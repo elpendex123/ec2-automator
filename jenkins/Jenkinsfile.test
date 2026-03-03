@@ -44,17 +44,14 @@ pipeline {
         always {
             echo '=== Publishing test results ==='
             junit 'test-results.xml'
-            publishHTML([
-                reportDir: 'htmlcov',
-                reportFiles: 'index.html',
-                reportName: 'Code Coverage Report',
-                keepAll: true
-            ])
+            // Note: Install HTML Publisher Plugin in Jenkins to enable HTML reports
+            // archiveArtifacts artifacts: 'htmlcov/**', allowEmptyArchive: true
         }
 
         success {
             echo '=== Tests PASSED ==='
             echo 'All 55 tests passed with coverage report generated'
+            echo 'Coverage report available in: htmlcov/index.html'
         }
 
         failure {
