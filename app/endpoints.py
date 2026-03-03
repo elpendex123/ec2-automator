@@ -7,9 +7,8 @@ from app.models import (
     LaunchInstanceResponse,
     TaskStatus,
     TerminateInstanceResponse,
-    ErrorResponse,
 )
-from app.tasks import task_store, create_task, get_task
+from app.tasks import create_task, get_task
 from app.background import start_background_task
 from app.aws.ec2 import terminate_instance
 

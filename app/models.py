@@ -29,9 +29,7 @@ class LaunchInstanceRequest(BaseModel):
     app_name: Literal["nginx", "mysql", "httpd", "mongo"] = Field(
         ..., description="Application to install on the instance"
     )
-    owner: str = Field(
-        ..., min_length=1, max_length=255, description="Owner/team name"
-    )
+    owner: str = Field(..., min_length=1, max_length=255, description="Owner/team name")
 
     class Config:
         json_schema_extra = {
@@ -59,9 +57,7 @@ class TaskStatus(BaseModel):
     status: Literal["pending", "running", "completed", "failed"] = Field(
         ..., description="Current task status"
     )
-    instance_id: Optional[str] = Field(
-        default=None, description="EC2 instance ID (if completed)"
-    )
+    instance_id: Optional[str] = Field(default=None, description="EC2 instance ID (if completed)")
     error: Optional[str] = Field(default=None, description="Error message (if failed)")
     created_at: Optional[str] = Field(default=None, description="Task creation time")
     completed_at: Optional[str] = Field(default=None, description="Task completion time")

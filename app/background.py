@@ -3,8 +3,8 @@
 import os
 import asyncio
 from app.logging_config import logger
-from app.tasks import task_store, update_task
-from app.aws.ec2 import create_instance, get_instance_status
+from app.tasks import update_task
+from app.aws.ec2 import create_instance
 from app.aws.ses import send_launch_success_email, send_launch_failure_email
 
 
@@ -28,9 +28,7 @@ async def launch_instance_worker(
         owner: Owner/team name
     """
     # Get notification email from environment
-    notification_email = os.getenv(
-        "NOTIFICATION_EMAIL", "enrique.coello@gmail.com"
-    )
+    notification_email = os.getenv("NOTIFICATION_EMAIL", "enrique.coello@gmail.com")
 
     try:
         # Update task status to running
@@ -47,9 +45,7 @@ async def launch_instance_worker(
 
         # Update task with instance ID
         update_task(task_id, "completed", instance_id=instance_id)
-        logger.info(
-            f"Task completed successfully: {task_id} (Instance: {instance_id})"
-        )
+        logger.info(f"Task completed successfully: {task_id} (Instance: {instance_id})")
 
         # Send success email
         try:

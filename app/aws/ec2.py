@@ -89,9 +89,7 @@ def create_instance(
         user_data = AVAILABLE_APPS.get(app_name)
 
         # Create instance
-        logger.info(
-            f"Creating EC2 instance: {instance_name} ({instance_type}) with {app_name}"
-        )
+        logger.info(f"Creating EC2 instance: {instance_name} ({instance_type}) with {app_name}")
 
         response = ec2.run_instances(
             ImageId=DEFAULT_AMI,
@@ -112,9 +110,7 @@ def create_instance(
         )
 
         instance_id = response["Instances"][0]["InstanceId"]
-        logger.info(
-            f"Instance created successfully: {instance_id} (Name: {instance_name})"
-        )
+        logger.info(f"Instance created successfully: {instance_id} (Name: {instance_name})")
 
         return instance_id
 

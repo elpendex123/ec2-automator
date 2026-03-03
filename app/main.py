@@ -2,7 +2,6 @@
 
 import uuid
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
 
 from app.logging_config import logger
 from app.models import InstanceOption
