@@ -1074,13 +1074,218 @@ a1b2c3d Phase 4: Email integration
 
 ---
 
+## Docker Container Testing (Phase 7+)
+
+### Start Test Container
+```bash
+docker run -d --name test-api -p 8000:8000 \
+  -e AWS_REGION=us-east-1 \
+  -e SES_SENDER_EMAIL=enrique.coello@gmail.com \
+  elpendex123/ec2-automator:latest
+
+sleep 3 && echo "Container started"
+```
+**What it does:** Starts containerized API for testing
+**Arguments:**
+- `-d`: Detached mode (background)
+- `--name test-api`: Container name
+- `-p 8000:8000`: Port mapping
+- `-e`: Environment variables
+- `sleep 3`: Wait for startup
+
+**Expected output:**
+```
+Container started
+```
+
+### Test Health Endpoint
+```bash
+curl -s http://localhost:8000/health | python3.10 -m json.tool
+```
+**What it does:** Verifies container is running and healthy
+**Expected output:**
+```json
+{
+    "status": "healthy",
+    "service": "ec2-automator"
+}
+```
+
+### Test Options Endpoint
+```bash
+curl -s http://localhost:8000/options | python3.10 -m json.tool
+```
+**What it does:** Gets available instance types and apps
+**Expected output:**
+```json
+{
+    "instance_types": ["t3.micro", "t3.small"],
+    "apps": ["nginx", "mysql", "httpd", "mongo"]
+}
+```
+
+### Test Launch Endpoint (Valid)
+```bash
+curl -s -X POST http://localhost:8000/launch \
+  -H "Content-Type: application/json" \
+  -d '{
+    "instance_name":"test-01",
+    "instance_type":"t3.micro",
+    "app_name":"nginx",
+    "owner":"test-user"
+  }' | python3.10 -m json.tool
+```
+**What it does:** Tests valid instance launch request
+**Expected output:**
+```json
+{
+    "task_id": "uuid-here",
+    "status": "accepted",
+    "message": "Instance launch initiated..."
+}
+```
+
+### Test Launch Endpoint (Invalid)
+```bash
+curl -s -X POST http://localhost:8000/launch \
+  -H "Content-Type: application/json" \
+  -d '{
+    "instance_name":"test-02",
+    "instance_type":"t2.large",
+    "app_name":"nginx",
+    "owner":"test-user"
+  }' | python3.10 -m json.tool
+```
+**What it does:** Tests request validation (invalid instance type)
+**Expected output:**
+```json
+{
+    "detail": [
+        {
+            "type": "literal_error",
+            "loc": ["body", "instance_type"],
+            "msg": "Input should be 't3.micro' or 't3.small'"
+        }
+    ]
+}
+```
+
+### Get Task Status
+```bash
+curl -s http://localhost:8000/status/<task-id> | python3.10 -m json.tool
+```
+**What it does:** Checks status of async task
+**Arguments:**
+- `<task-id>`: Replace with actual task ID from launch response
+
+**Expected output:**
+```json
+{
+    "task_id": "...",
+    "status": "pending|running|completed|failed",
+    "instance_id": "i-xxx or null",
+    "error": null or error message
+}
+```
+
+### View Container Logs
+```bash
+docker logs test-api | tail -50
+```
+**What it does:** Shows recent container logs
+**Expected output:**
+```
+{"timestamp": "...", "level": "INFO", "message": "..."}
+[with JSON structured logging]
+```
+
+### Stop Test Container
+```bash
+docker stop test-api && docker rm test-api && echo "Container stopped"
+```
+**What it does:** Stops and removes container
+**Expected output:**
+```
+Container stopped
+```
+
+---
+
+## Jenkins Pipeline Testing (Phase 7+)
+
+### Manually Trigger Jenkins Job
+```bash
+# Via Jenkins UI: Click job → Build Now
+# Or via Jenkins CLI:
+java -jar jenkins-cli.jar -s http://localhost:8080 build ec2-automator-lint
+```
+**What it does:** Manually triggers a Jenkins job
+**Expected output:**
+```
+Scheduled build of ec2-automator-lint for execution
+```
+
+### Check Jenkins Job Status
+```bash
+curl -s http://localhost:8080/job/ec2-automator-lint/lastBuild/api/json | python3.10 -m json.tool
+```
+**What it does:** Gets last build status via Jenkins API
+**Arguments:**
+- Replace `ec2-automator-lint` with actual job name
+- `lastBuild` returns most recent build
+
+**Expected output:**
+```json
+{
+    "result": "SUCCESS",
+    "building": false,
+    "number": 1,
+    "timestamp": 1234567890000
+}
+```
+
+### View Jenkins Build Log
+```bash
+curl -s http://localhost:8080/job/ec2-automator-lint/lastBuild/consoleText
+```
+**What it does:** Gets full console output of last build
+**Expected output:**
+```
+Started by user enrique
+...
+Finished: SUCCESS
+```
+
+### Verify All 5 Jobs Completed
+```bash
+for job in "1 - Setup" "2 - Lint" "3 - Test" "4 - Build" "5 - Push"; do
+  curl -s "http://localhost:8080/job/ec2-automator/$job/lastBuild/api/json" | \
+    python3.10 -c "import json,sys; d=json.load(sys.stdin); print(f'$job: {d[\"result\"]}')"
+done
+```
+**What it does:** Checks result of all 5 pipeline jobs
+**Expected output:**
+```
+1 - Setup: SUCCESS
+2 - Lint: SUCCESS
+3 - Test: SUCCESS
+4 - Build: SUCCESS
+5 - Push: SUCCESS
+```
+
+---
+
 ## Notes
 - All AWS commands assume you have AWS CLI configured with credentials
 - Replace example values (instance IDs, email addresses, etc.) with actual values
 - Port 8000 is the default FastAPI port; adjust if using different port
+- Port 8080 is Jenkins default; adjust if using different port
 - Docker commands assume Docker is installed and running
 - Git commands assume repository is initialized
 - Use `python3.10` for consistent Python version (avoid environment issues)
 - Always use virtual environments (venv) for Python projects
 - Check Free Tier limits regularly: `aws ec2 describe-instances`
 - Kill old processes before starting new services: `pkill -f uvicorn`
+- Jenkins requires Java and plugins installed before use
+- Test container locally before trusting in production
+- Full pipeline execution: setup (once) → lint (manual) → test,build,push (auto)

@@ -416,6 +416,189 @@ For testing: Use moto mocking instead of real AWS calls.
 
 ---
 
+## Phase 7: Jenkins CI/CD Pipeline
+
+### Issue #13: Missing NOTIFICATION_EMAIL Environment Variable
+- **Status:** Resolved
+- **Severity:** High
+- **Component:** Jenkins, Jenkinsfile
+- **Created:** 2026-03-03
+- **Resolved:** 2026-03-03
+
+**Description:**
+Initial Jenkinsfile used undefined `NOTIFICATION_EMAIL` environment variable in post-build email steps, causing failure.
+
+**Error Message:**
+```
+groovy.lang.MissingPropertyException: No such property: NOTIFICATION_EMAIL for class: groovy.lang.Binding
+```
+
+**Root Cause:**
+NOTIFICATION_EMAIL variable referenced in Jenkinsfile but not defined in environment section or Jenkins config.
+
+**Solution:**
+Add NOTIFICATION_EMAIL to Jenkins global configuration or define in each Jenkinsfile:
+```groovy
+environment {
+    NOTIFICATION_EMAIL = 'enrique.coello@gmail.com'
+}
+```
+
+**Learning:**
+- Always define all variables used in Jenkinsfile
+- Use Jenkins Manage Jenkins → Configure System for global vars
+- Or define in environment section of each job
+- Test pipeline locally before deployment
+
+---
+
+### Issue #14: Pip Dependency Conflict in Test Job
+- **Status:** Resolved
+- **Severity:** High
+- **Component:** Python Dependencies, pytest
+- **Created:** 2026-03-03
+- **Resolved:** 2026-03-03
+
+**Description:**
+Test job failed during dependency installation with ResolutionImpossible error.
+
+**Error Message:**
+```
+ERROR: Cannot install -r requirements-dev.txt (line 3) and pytest==7.4.4 because these package versions have conflicting dependencies.
+ERROR: ResolutionImpossible: for help visit https://pip.pypa.io/en/latest/topics/dependency-resolution/#dealing-with-dependency-conflicts
+```
+
+**Root Cause:**
+Initial update to `pytest==8.0.0` and `pytest-asyncio==0.24.0` had conflicting dependencies. These versions are incompatible.
+
+**Solution:**
+Reverted to compatible versions:
+```
+pytest==7.4.4 (not 8.0.0)
+pytest-asyncio==0.21.1 (not 0.24.0)
+```
+
+These versions are proven to work together.
+
+**Learning:**
+- Test dependency updates locally first
+- Check PyPI for compatibility information
+- Use `pip install --dry-run` to test without installing
+- Keep tested version combinations in source control
+
+---
+
+### Issue #15: pytest-asyncio Plugin Incompatibility
+- **Status:** Resolved
+- **Severity:** High
+- **Component:** pytest, pytest-asyncio plugin
+- **Created:** 2026-03-03
+- **Resolved:** 2026-03-03
+
+**Description:**
+Test collection failed with AttributeError when trying to run pytest.
+
+**Error Message:**
+```
+AttributeError: 'Package' object has no attribute 'obj'
+File "pytest_asyncio/plugin.py", line 610, in pytest_collectstart
+```
+
+**Root Cause:**
+pytest-asyncio 0.23.0 incompatible with pytest 8.0.0. The plugin tried to access an attribute that doesn't exist on Package objects in pytest 8.0.0.
+
+**Solution:**
+Used compatible versions:
+- pytest: 7.4.4
+- pytest-asyncio: 0.21.1
+
+These versions are confirmed compatible with each other.
+
+**Learning:**
+- Always check plugin compatibility with framework versions
+- Use PyPI to find compatible versions
+- Test dependency combinations in full environment
+- Keep version combinations documented
+
+---
+
+### Issue #16: Missing Jenkins HTML Publisher Plugin
+- **Status:** Resolved
+- **Severity:** Medium
+- **Component:** Jenkins, publishHTML plugin
+- **Created:** 2026-03-03
+- **Resolved:** 2026-03-03
+
+**Description:**
+Jenkins test job failed with error that publishHTML DSL method not found.
+
+**Error Message:**
+```
+No such DSL method 'publishHTML' found among steps
+```
+
+**Root Cause:**
+HTML Publisher Plugin not installed in Jenkins instance. publishHTML step requires this plugin.
+
+**Solution:**
+Removed publishHTML from Jenkinsfile since plugin not installed:
+```groovy
+// Changed from publishHTML to simpler approach
+junit 'test-results.xml'
+archiveArtifacts artifacts: 'htmlcov/**', allowEmptyArchive: true
+```
+
+Can re-add HTML reporting if plugin is installed later:
+1. Manage Jenkins → Manage Plugins
+2. Search: "HTML Publisher"
+3. Install and restart Jenkins
+
+**Learning:**
+- Check required plugins before using DSL steps
+- Design Jenkinsfiles to be plugin-agnostic when possible
+- Document plugin requirements clearly
+- Use alternative approaches if plugins unavailable
+
+---
+
+### Issue #17: Modular Jenkinsfile Job Chain Execution
+- **Status:** Resolved
+- **Severity:** Medium
+- **Component:** Jenkins, Pipeline
+- **Created:** 2026-03-03
+- **Resolved:** 2026-03-03
+
+**Description:**
+Original monolithic Jenkinsfile had all stages (setup, lint, test, build, push) in one job, causing 4+ minute executions even for quick changes.
+
+**Root Cause:**
+Dependencies reinstalled on every run, taking 2-3 minutes per execution. Setup job should run once, subsequent runs should skip this.
+
+**Solution:**
+Broke Jenkinsfile into 5 modular jobs:
+1. **ec2-automator-setup** - Run once (2-3 min, install deps)
+2. **ec2-automator-lint** - Manual trigger (15 sec)
+3. **ec2-automator-test** - Auto-triggered (45 sec)
+4. **ec2-automator-build** - Auto-triggered (45 sec)
+5. **ec2-automator-push** - Auto-triggered (30 sec)
+
+Each job triggers next on success. Time per deploy: ~90 seconds (vs 4+ minutes).
+
+**Implementation:**
+- Created separate Jenkinsfile per job
+- Added "Build other projects" post-build actions
+- Installed Parameterized Trigger Plugin for auto-triggering
+- Created PIPELINE_SETUP.md with configuration guide
+
+**Learning:**
+- Break monolithic CI/CD into modular stages
+- Use post-build triggers for job chaining
+- Cache dependencies to avoid reinstalls
+- Document pipeline configuration clearly
+- First run: setup once, subsequent runs: skip setup
+
+---
+
 ## Known Limitations
 
 ### Free Tier Hours
