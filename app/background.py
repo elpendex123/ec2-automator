@@ -29,7 +29,7 @@ async def launch_instance_worker(
     """
     # Get notification email from environment
     notification_email = os.getenv(
-        "NOTIFICATION_EMAIL", "admin@example.com"
+        "NOTIFICATION_EMAIL", "enrique.coello@gmail.com"
     )
 
     try:
