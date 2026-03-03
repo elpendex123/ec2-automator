@@ -91,6 +91,24 @@ pytest tests/unit/test_endpoints.py -v
 
 ## API Endpoints
 
+### Interactive API Documentation
+Once running, access interactive API docs at:
+- **Swagger UI:** http://localhost:8000/docs
+- **ReDoc:** http://localhost:8000/redoc
+
+All endpoints are documented with request/response schemas, examples, and try-it-out capability.
+
+### GET /health
+Health check endpoint for monitoring.
+
+**Response (200 OK):**
+```json
+{
+  "status": "ok",
+  "version": "1.0.0"
+}
+```
+
 ### GET /options
 Returns available instance types and supported applications.
 
@@ -103,7 +121,7 @@ Returns available instance types and supported applications.
 ```
 
 ### POST /launch
-Provisions a new EC2 instance asynchronously.
+Provisions a new EC2 instance asynchronously. Returns `202 Accepted` with task ID.
 
 **Request:**
 ```json
@@ -115,7 +133,7 @@ Provisions a new EC2 instance asynchronously.
 }
 ```
 
-**Response:**
+**Response (202 Accepted):**
 ```json
 {
   "task_id": "task-abc123def456",
@@ -123,6 +141,16 @@ Provisions a new EC2 instance asynchronously.
   "message": "Instance launch started"
 }
 ```
+
+**Request Validation:**
+- `instance_name`: Required, non-empty string
+- `instance_type`: Must be "t3.micro" or "t3.small"
+- `app_name`: Must be one of: nginx, mysql, httpd, mongo
+- `owner`: Required, non-empty string
+
+**Error Responses:**
+- `400 Bad Request` - Invalid instance_type or app_name
+- `422 Unprocessable Entity` - Missing/invalid request fields
 
 ### GET /status/{task_id}
 Check the status of an async provisioning task.
@@ -132,18 +160,42 @@ Check the status of an async provisioning task.
 {
   "task_id": "task-abc123def456",
   "status": "completed",
-  "instance_id": "i-1234567890abcdef0"
+  "instance_id": "i-1234567890abcdef0",
+  "error": null
+}
+```
+
+**Possible Status Values:**
+- `pending` - Task queued, not yet started
+- `running` - Instance provisioning in progress
+- `completed` - Instance successfully launched
+- `failed` - Instance launch failed (check error field)
+
+**Error Response (404 Not Found):**
+```json
+{
+  "detail": "Task not found"
 }
 ```
 
 ### DELETE /terminate/{instance_id}
 Terminate an EC2 instance.
 
-**Response:**
+**Path Parameter:**
+- `instance_id`: EC2 instance ID (e.g., i-1234567890abcdef0)
+
+**Response (200 OK):**
 ```json
 {
   "message": "Termination requested",
   "instance_id": "i-1234567890abcdef0"
+}
+```
+
+**Error Response (400 Bad Request):**
+```json
+{
+  "detail": "Invalid instance ID format"
 }
 ```
 
@@ -205,6 +257,54 @@ NOTIFICATION_EMAIL=team@yourdomain.com
 - **Fail fast** - Errors are raised immediately, not silently ignored
 - **Input validation** - All requests validated with Pydantic
 - **Minimal permissions** - IAM policy restricted to required actions
+- **TLS/SSL** - Use HTTPS in production (reverse proxy with nginx/HAProxy)
+- **Rate limiting** - Implement API rate limiting in production (use nginx or API gateway)
+- **Authentication** - Add API key/JWT authentication for production deployments
+
+## Logging & Monitoring
+
+### JSON Structured Logging
+All logs are output as JSON to stdout for easy parsing and aggregation:
+
+```json
+{
+  "timestamp": "2026-03-03T10:30:45.123456Z",
+  "level": "INFO",
+  "message": "GET /options",
+  "method": "GET",
+  "path": "/options",
+  "status_code": 200,
+  "duration_ms": 1.23
+}
+```
+
+### Log Levels
+- `DEBUG` - Detailed information for debugging
+- `INFO` - General informational messages
+- `WARNING` - Warning messages
+- `ERROR` - Error messages
+- `CRITICAL` - Critical errors
+
+### Monitoring Recommendations
+1. **Log Aggregation** - Send logs to CloudWatch, ELK, or Splunk
+2. **Health Checks** - Monitor `/health` endpoint regularly (every 10-30 seconds)
+3. **Task Queue Monitoring** - Track pending/running task counts
+4. **AWS Resources** - Monitor EC2 instance count and costs
+5. **Error Rate** - Alert if error rate exceeds threshold (>5%)
+6. **Response Time** - Alert if average response time exceeds 1s
+
+### CloudWatch Integration (Future)
+```python
+# Can be added for production deployments
+import boto3
+cloudwatch = boto3.client('cloudwatch')
+cloudwatch.put_metric_data(
+    Namespace='EC2Automator',
+    MetricData=[
+        {'MetricName': 'Tasks', 'Value': pending_count}
+    ]
+)
+```
 
 ## Development
 
@@ -235,7 +335,20 @@ MIT
 
 ## Documentation
 
+### Getting Started
+- [README.md](README.md) - Overview and quick start (this file)
 - [Project Phases](docs/PROJECT_PHASES.md) - Development phases and timeline
-- [Commands Reference](docs/COMMANDS_REFERENCE.md) - All commands by technology
+
+### Deployment & Operations
+- [AWS Setup Guide](docs/AWS_SETUP_GUIDE.md) - IAM, SES, VPC, Security Groups
+- [Deployment Guide](docs/DEPLOYMENT_GUIDE.md) - EC2, Docker, Kubernetes deployment options
+- [Deployment Checklist](docs/DEPLOYMENT_CHECKLIST.md) - Pre/during/post deployment verification
+
+### Reference
+- [Commands Reference](docs/COMMANDS_REFERENCE.md) - All commands by technology (AWS, Python, Docker, Jenkins)
+- [Issues Log](docs/ISSUES.md) - Known issues and solutions from all phases
 - [Project Structure](docs/PROJECT_STRUCTURE.md) - Detailed directory layout
-- [Issues Log](docs/ISSUES.md) - Known issues and solutions
+
+### API Documentation
+- **Swagger UI:** http://localhost:8000/docs (interactive API docs)
+- **ReDoc:** http://localhost:8000/redoc (alternative API documentation)

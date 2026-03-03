@@ -1382,6 +1382,213 @@ tests/unit/test_models.py::TestLaunchInstanceRequest::test_valid_request PASSED
 
 ---
 
+## Phase 9: Deployment & Production
+
+### AWS IAM Setup
+
+#### Create IAM Role
+```bash
+aws iam create-role \
+  --role-name ec2-automator-role \
+  --assume-role-policy-document '{
+    "Version": "2012-10-17",
+    "Statement": [{
+      "Effect": "Allow",
+      "Principal": {"Service": "ec2.amazonaws.com"},
+      "Action": "sts:AssumeRole"
+    }]
+  }'
+```
+**What it does:** Creates IAM role for EC2 instances
+**Expected output:** Role ARN and details
+
+#### Attach IAM Policy
+```bash
+aws iam attach-role-policy \
+  --role-name ec2-automator-role \
+  --policy-arn arn:aws:iam::ACCOUNT_ID:policy/ec2-automator-policy
+```
+**What it does:** Attaches EC2/SES permissions to role
+**Expected output:** Success (no output)
+
+#### Create Instance Profile
+```bash
+aws iam create-instance-profile --instance-profile-name ec2-automator-profile
+aws iam add-role-to-instance-profile \
+  --instance-profile-name ec2-automator-profile \
+  --role-name ec2-automator-role
+```
+**What it does:** Enables attaching role to EC2 instances
+**Expected output:** Instance profile details
+
+### SES Email Configuration
+
+#### Verify Email Address
+```bash
+aws ses verify-email-identity --email-address enrique.coello@gmail.com
+```
+**What it does:** Requests email verification
+**Expected output:** Request ID, check email for verification link
+
+#### List Verified Emails
+```bash
+aws ses list-verified-email-addresses
+```
+**What it does:** Shows all verified email addresses
+**Expected output:** List of verified addresses
+
+#### Send Test Email
+```bash
+aws ses send-email \
+  --from enrique.coello@gmail.com \
+  --destination ToAddresses=enrique.coello@gmail.com \
+  --message Subject={Data="Test",Charset=UTF-8},Body={Text={Data="Test",Charset=UTF-8}}
+```
+**What it does:** Sends test email via SES
+**Expected output:** Message ID
+
+### EC2 Deployment
+
+#### Launch Deployment Instance
+```bash
+aws ec2 run-instances \
+  --image-id ami-0c55b159cbfafe1f0 \
+  --instance-type t3.small \
+  --iam-instance-profile Name=ec2-automator-profile \
+  --security-groups ec2-automator-sg \
+  --key-name your-key-pair \
+  --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=ec2-automator-api}]'
+```
+**What it does:** Launches EC2 instance for API server
+**Expected output:** Instance ID, public IP
+
+#### Check Instance Status
+```bash
+aws ec2 describe-instances \
+  --filters Name=tag:Name,Values=ec2-automator-api \
+  --query 'Reservations[0].Instances[0].[PublicIpAddress,State.Name,InstanceType]'
+```
+**What it does:** Gets instance details (IP, status, type)
+**Expected output:** Instance IP, state (running), instance type
+
+#### SSH into Instance
+```bash
+ssh -i your-key.pem ec2-user@YOUR_INSTANCE_IP
+```
+**What it does:** Connects to instance for setup
+**Expected output:** ec2-user@hostname shell prompt
+
+### Docker Deployment
+
+#### Build Docker Image
+```bash
+docker build -t ec2-automator:latest .
+```
+**What it does:** Builds Docker image from Dockerfile
+**Expected output:**
+```
+...
+Successfully tagged ec2-automator:latest
+```
+
+#### Push to Registry
+```bash
+docker tag ec2-automator:latest your-registry/ec2-automator:latest
+docker push your-registry/ec2-automator:latest
+```
+**What it does:** Pushes image to Docker registry
+**Expected output:** Push progress, image layers
+
+#### Run Container
+```bash
+docker run -d \
+  -p 8000:8000 \
+  -e AWS_REGION=us-east-1 \
+  -e SES_SENDER_EMAIL=your-email@example.com \
+  -v ~/.aws:/root/.aws:ro \
+  --name ec2-automator-api \
+  ec2-automator:latest
+```
+**What it does:** Starts container with environment variables
+**Expected output:** Container ID
+
+#### Check Container Status
+```bash
+docker ps
+docker logs ec2-automator-api
+docker stats ec2-automator-api
+```
+**What it does:** Verify container running and check logs/performance
+**Expected output:** Container details, logs, CPU/memory stats
+
+### Kubernetes Deployment
+
+#### Apply Deployment
+```bash
+kubectl apply -f k8s/deployment.yaml
+```
+**What it does:** Creates Kubernetes deployment and service
+**Expected output:** deployment created, service created
+
+#### Check Deployment Status
+```bash
+kubectl get deployments -n ec2-automator
+kubectl get pods -n ec2-automator
+kubectl get svc -n ec2-automator
+```
+**What it does:** Verify deployment is running
+**Expected output:** Deployment replicas, pod status, service details
+
+#### View Pod Logs
+```bash
+kubectl logs -n ec2-automator deployment/ec2-automator
+```
+**What it does:** Shows application logs
+**Expected output:** JSON structured logs from application
+
+### Health & Monitoring
+
+#### Test Health Endpoint
+```bash
+curl -s http://localhost:8000/health | python3.10 -m json.tool
+```
+**What it does:** Checks if API is healthy
+**Expected output:**
+```json
+{"status":"ok","version":"1.0.0"}
+```
+
+#### Monitor Application
+```bash
+# Watch logs
+docker logs -f ec2-automator-api
+
+# Or with Kubernetes
+kubectl logs -f -n ec2-automator deployment/ec2-automator
+
+# Check metrics
+curl -s http://localhost:8000/health
+```
+**What it does:** Real-time monitoring of application
+**Expected output:** JSON logs with each request
+
+#### CloudWatch Monitoring (AWS)
+```bash
+# Get CPU metrics
+aws cloudwatch get-metric-statistics \
+  --namespace AWS/EC2 \
+  --metric-name CPUUtilization \
+  --dimensions Name=InstanceId,Value=i-xxxxxxxx \
+  --start-time 2026-03-03T00:00:00Z \
+  --end-time 2026-03-04T00:00:00Z \
+  --period 300 \
+  --statistics Average
+```
+**What it does:** Retrieves CloudWatch metrics
+**Expected output:** Average CPU usage over time
+
+---
+
 ## Notes
 - All AWS commands assume you have AWS CLI configured with credentials
 - Replace example values (instance IDs, email addresses, etc.) with actual values
