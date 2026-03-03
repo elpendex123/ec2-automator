@@ -1275,6 +1275,113 @@ done
 
 ---
 
+## Phase 8: Testing & QA
+
+### Run Full Test Suite with Coverage
+```bash
+python3.10 -m pytest tests/ -v --cov=app --cov-report=term-missing --cov-report=html
+```
+**What it does:** Runs all 55 tests with line-by-line coverage report
+**Expected output:**
+```
+collected 55 items
+...
+55 passed, 1 warning in 5.96s
+Coverage HTML written to dir htmlcov
+```
+**Output files:**
+- `htmlcov/index.html` - Visual coverage report
+- Test output shows line numbers for uncovered code
+
+### Run Tests Only (No Coverage)
+```bash
+python3.10 -m pytest tests/ -v
+```
+**What it does:** Runs all tests without coverage calculation (faster)
+**Expected output:**
+```
+55 passed in X.XXs
+```
+
+### Run Specific Test File
+```bash
+python3.10 -m pytest tests/unit/test_models.py -v
+python3.10 -m pytest tests/integration/test_ec2_integration.py -v
+python3.10 -m pytest tests/integration/test_ses_integration.py -v
+```
+**What it does:** Runs tests from specific files only
+**Expected output:**
+```
+collected N items
+...
+N passed in X.XXs
+```
+
+### Run Tests Matching Pattern
+```bash
+python3.10 -m pytest tests/ -k "test_launch" -v
+python3.10 -m pytest tests/ -k "email" -v
+```
+**What it does:** Runs only tests matching the keyword
+**Expected output:**
+```
+collected N items (M deselected)
+...
+```
+
+### Check Code with Ruff Linter
+```bash
+python3.10 -m ruff check app/ tests/
+```
+**What it does:** Checks code for style and quality issues
+**Expected output:**
+```
+All checks passed!
+```
+
+### Format Code with Black
+```bash
+python3.10 -m black app/ tests/
+```
+**What it does:** Auto-formats code to meet style standards
+**Expected output:**
+```
+All done! ✨ 🍰 ✨
+22 files would be left unchanged.
+```
+
+### View Coverage Report
+```bash
+open htmlcov/index.html  # macOS
+xdg-open htmlcov/index.html  # Linux
+start htmlcov/index.html  # Windows
+```
+**What it does:** Opens HTML coverage report in browser
+**Expected output:** Visual report showing covered/uncovered lines
+
+### Install Dev Dependencies (If Needed)
+```bash
+python3.10 -m pip install -r requirements-dev.txt
+```
+**What it does:** Installs pytest, moto, coverage, linting tools
+**Expected output:**
+```
+Successfully installed pytest-7.4.4 pytest-asyncio-0.21.1 ...
+```
+
+### Run Test Suite with Detailed Output
+```bash
+python3.10 -m pytest tests/ -vv --tb=short
+```
+**What it does:** Runs tests with extra verbosity and short tracebacks
+**Expected output:**
+```
+tests/unit/test_models.py::TestLaunchInstanceRequest::test_valid_request PASSED
+...
+```
+
+---
+
 ## Notes
 - All AWS commands assume you have AWS CLI configured with credentials
 - Replace example values (instance IDs, email addresses, etc.) with actual values
