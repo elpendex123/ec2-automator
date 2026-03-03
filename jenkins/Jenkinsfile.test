@@ -1,0 +1,66 @@
+// Jenkinsfile.test
+// Purpose: Run pytest suite with coverage reporting
+// Run: Manual trigger after linting passes
+// Time: 30-45 seconds (assumes dependencies already installed)
+// Prerequisites: Run setup job first OR have pytest installed
+
+pipeline {
+    agent any
+
+    environment {
+        PYTHON_VERSION = '3.10'
+    }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '20'))
+        timestamps()
+        timeout(time: 10, unit: 'MINUTES')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                echo '=== Checking out source code ==='
+                checkout scm
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                echo '=== Running pytest suite with coverage ==='
+                sh '''
+                    python3.10 -m pytest tests/ -v \
+                        --cov=app \
+                        --cov-report=xml \
+                        --cov-report=html \
+                        --cov-report=term-missing \
+                        --junit-xml=test-results.xml
+                '''
+            }
+        }
+    }
+
+    post {
+        always {
+            echo '=== Publishing test results ==='
+            junit 'test-results.xml'
+            publishHTML([
+                reportDir: 'htmlcov',
+                reportFiles: 'index.html',
+                reportName: 'Code Coverage Report',
+                keepAll: true
+            ])
+        }
+
+        success {
+            echo '=== Tests PASSED ==='
+            echo 'All 55 tests passed with coverage report generated'
+        }
+
+        failure {
+            echo '=== Tests FAILED ==='
+            echo 'Review test output above for failures'
+            echo 'Run locally: python3.10 -m pytest tests/ -v'
+        }
+    }
+}

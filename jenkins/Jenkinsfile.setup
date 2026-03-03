@@ -1,0 +1,66 @@
+// Jenkinsfile.setup
+// Purpose: Install all dependencies and cache them
+// Run: Once per session or nightly (heavy lifting)
+// Time: 2-3 minutes on first run
+// Use for: Initial setup before running other jobs
+
+pipeline {
+    agent any
+
+    environment {
+        PYTHON_VERSION = '3.10'
+    }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '5'))
+        timestamps()
+        timeout(time: 10, unit: 'MINUTES')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                echo '=== Checking out source code ==='
+                checkout scm
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                echo '=== Installing Python dependencies ==='
+                sh '''
+                    python3.10 -m pip install --upgrade pip --quiet
+                    python3.10 -m pip install -r requirements.txt --quiet
+                    python3.10 -m pip install -r requirements-dev.txt --quiet
+                    echo "Dependencies installed successfully"
+                    python3.10 -m pip list | grep -E "pytest|ruff|black|moto"
+                '''
+            }
+        }
+
+        stage('Verify Setup') {
+            steps {
+                echo '=== Verifying installations ==='
+                sh '''
+                    python3.10 -m pytest --version
+                    python3.10 -m ruff --version
+                    python3.10 -m black --version
+                    echo "All tools verified"
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '=== Setup COMPLETE ==='
+            echo 'Dependencies cached and ready'
+            echo 'Run other jobs now (lint, test, build)'
+        }
+        failure {
+            echo '=== Setup FAILED ==='
+            echo 'Check pip dependency conflicts'
+            echo 'Run locally: python3.10 -m pip install -r requirements-dev.txt'
+        }
+    }
+}

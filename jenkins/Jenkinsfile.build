@@ -1,0 +1,73 @@
+// Jenkinsfile.build
+// Purpose: Build Docker image (no push)
+// Run: Manual trigger after tests pass
+// Time: 20-45 seconds
+// Prerequisites: Docker installed, Dockerfile present
+
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_REGISTRY = 'docker.io'
+        DOCKER_IMAGE = 'elpendex123/ec2-automator'
+        DOCKER_TAG = "${BUILD_NUMBER}"
+    }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        timestamps()
+        timeout(time: 10, unit: 'MINUTES')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                echo '=== Checking out source code ==='
+                checkout scm
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                echo '=== Building Docker image ==='
+                sh '''
+                    echo "Building image: ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${DOCKER_TAG}"
+                    docker build \
+                        -t ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${DOCKER_TAG} \
+                        -t ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:latest \
+                        .
+
+                    echo "Build completed. Image tags:"
+                    docker images | grep ec2-automator | head -3
+                '''
+            }
+        }
+
+        stage('Verify Image') {
+            steps {
+                echo '=== Verifying Docker image ==='
+                sh '''
+                    docker run --rm ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${DOCKER_TAG} \
+                        python -c "import app; print('App module verified')"
+
+                    echo "Image size:"
+                    docker images ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${DOCKER_TAG} --format "table {{.Repository}}:{{.Tag}}\t{{.Size}}"
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '=== Build PASSED ==='
+            echo "Image ready: ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${DOCKER_TAG}"
+            echo 'Run Jenkinsfile.push to push to registry'
+        }
+
+        failure {
+            echo '=== Build FAILED ==='
+            echo 'Verify Dockerfile and app code'
+            echo 'Run locally: docker build -t test .'
+        }
+    }
+}

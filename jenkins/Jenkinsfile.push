@@ -1,0 +1,87 @@
+// Jenkinsfile.push
+// Purpose: Push Docker image to registry (master branch only)
+// Run: Manual trigger after build passes (optional)
+// Time: 15-30 seconds (network dependent)
+// Prerequisites: Docker credentials configured, image already built
+
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_REGISTRY = 'docker.io'
+        DOCKER_IMAGE = 'elpendex123/ec2-automator'
+        DOCKER_TAG = "${BUILD_NUMBER}"
+    }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        timestamps()
+        timeout(time: 5, unit: 'MINUTES')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                echo '=== Checking out source code ==='
+                checkout scm
+            }
+        }
+
+        stage('Verify Deployment') {
+            when {
+                branch 'master'
+            }
+            steps {
+                echo '=== Preparing Docker image for push ==='
+                sh '''
+                    echo "Verifying image exists: ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${DOCKER_TAG}"
+                    docker images | grep ec2-automator || exit 1
+                '''
+            }
+        }
+
+        stage('Push to Registry') {
+            when {
+                branch 'master'
+            }
+            steps {
+                echo '=== Pushing Docker image to registry ==='
+                sh '''
+                    echo "NOTE: To push, configure Docker credentials in Jenkins:"
+                    echo "  1. Manage Jenkins > Manage Credentials > Add Docker Hub credentials"
+                    echo "  2. Set credential ID to: dockerhub-credentials"
+                    echo "  3. Uncomment docker push commands below"
+                    echo ""
+                    echo "Image to push:"
+                    echo "  ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${DOCKER_TAG}"
+                    echo "  ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:latest"
+                    echo ""
+                    echo "Would push with:"
+                    echo "  docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${DOCKER_TAG}"
+                    echo "  docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:latest"
+
+                    # Uncomment after configuring credentials
+                    # withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    #     sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                    #     sh 'docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${DOCKER_TAG}'
+                    #     sh 'docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:latest'
+                    #     sh 'docker logout'
+                    # }
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '=== Push COMPLETE ==='
+            echo 'Image ready to push (credentials required for actual push)'
+        }
+
+        failure {
+            echo '=== Push FAILED ==='
+            echo 'Verify Docker credentials configured'
+            echo 'Run locally: docker push <image>'
+        }
+    }
+}

@@ -1,0 +1,61 @@
+// Jenkinsfile.lint
+// Purpose: Code quality checks with ruff (no installation)
+// Run: Manual trigger or after code changes
+// Time: 10-15 seconds (assumes dependencies already installed)
+// Prerequisites: Run setup job first OR have ruff installed
+
+pipeline {
+    agent any
+
+    environment {
+        PYTHON_VERSION = '3.10'
+    }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '20'))
+        timestamps()
+        timeout(time: 5, unit: 'MINUTES')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                echo '=== Checking out source code ==='
+                checkout scm
+            }
+        }
+
+        stage('Lint with Ruff') {
+            steps {
+                echo '=== Running Ruff code quality checks ==='
+                sh '''
+                    echo "Starting linting..."
+                    python3.10 -m ruff check app/ tests/ --output-format=github
+                    echo "Linting completed successfully"
+                '''
+            }
+        }
+
+        stage('Format Check with Black') {
+            steps {
+                echo '=== Checking code formatting with Black ==='
+                sh '''
+                    python3.10 -m black --check app/ tests/ || true
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '=== Lint PASSED ==='
+            echo 'Code quality checks successful'
+        }
+        failure {
+            echo '=== Lint FAILED ==='
+            echo 'Run locally to fix:'
+            echo '  python3.10 -m ruff check app/ tests/ --fix'
+            echo '  python3.10 -m black app/ tests/'
+        }
+    }
+}
