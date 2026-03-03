@@ -59,7 +59,7 @@ def send_email(
     if not body_text or not body_text.strip():
         raise ValueError("Email body cannot be empty")
 
-    sender = os.getenv("SES_SENDER_EMAIL", "noreply@yourdomain.com")
+    sender = os.getenv("SES_SENDER_EMAIL", "enrique.coello@gmail.com")
 
     try:
         ses = get_ses_client()
