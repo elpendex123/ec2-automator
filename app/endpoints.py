@@ -10,6 +10,8 @@ from app.models import (
     ErrorResponse,
 )
 from app.tasks import task_store, create_task, get_task
+from app.background import start_background_task
+from app.aws.ec2 import terminate_instance
 
 router = APIRouter(tags=["Instances"])
 
@@ -45,6 +47,17 @@ async def launch_instance(request: LaunchInstanceRequest):
         )
 
         logger.info(f"Task created: {task_id}")
+
+        # Start background worker (non-blocking)
+        start_background_task(
+            task_id=task_id,
+            instance_name=request.instance_name,
+            instance_type=request.instance_type,
+            app_name=request.app_name,
+            owner=request.owner,
+        )
+
+        logger.info(f"Background worker started for task: {task_id}")
 
         return LaunchInstanceResponse(
             task_id=task_id,
@@ -111,7 +124,7 @@ async def get_task_status(task_id: str):
 
 
 @router.delete("/terminate/{instance_id}")
-async def terminate_instance(instance_id: str):
+async def terminate_instance_endpoint(instance_id: str):
     """Terminate an EC2 instance.
 
     Args:
@@ -121,7 +134,7 @@ async def terminate_instance(instance_id: str):
         TerminateInstanceResponse confirming termination request
 
     Raises:
-        HTTPException: If instance_id is invalid
+        HTTPException: If instance_id is invalid or termination fails
     """
     try:
         if not instance_id.startswith("i-"):
@@ -133,19 +146,25 @@ async def terminate_instance(instance_id: str):
 
         logger.info(f"Terminating instance: {instance_id}")
 
-        # Actual termination will be implemented in Phase 3
-        # For now, just log and return success response
+        # Call AWS to terminate instance
+        terminate_instance(instance_id)
 
         return TerminateInstanceResponse(
-            message=f"Instance {instance_id} termination requested",
+            message=f"Instance {instance_id} terminated successfully",
             instance_id=instance_id,
         )
 
+    except ValueError as e:
+        logger.error(f"Validation error: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Error terminating instance: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to terminate instance",
+            detail=f"Failed to terminate instance: {str(e)}",
         )
