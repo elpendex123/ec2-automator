@@ -215,13 +215,41 @@ ec2-automator/
 │   │   └── ses.py        # Email notifications
 │   ├── utils/             # Utilities
 │   └── middleware/        # HTTP middleware
-├── tests/                 # Test suite
-├── docs/                  # Documentation
-├── Dockerfile            # Container definition
-├── Jenkinsfile           # CI/CD pipeline
-├── requirements.txt      # Dependencies
-├── pyproject.toml        # Project config
-└── README.md            # This file
+├── tests/                 # Test suite (55 tests, 81% coverage)
+│   ├── unit/              # Unit tests
+│   └── integration/       # Integration tests
+├── docs/                  # Documentation (8 files, 5000+ lines)
+│   ├── PROJECT_PHASES.md
+│   ├── COMMANDS_REFERENCE.md
+│   ├── ISSUES.md
+│   ├── AWS_SETUP_GUIDE.md
+│   ├── DEPLOYMENT_GUIDE.md
+│   ├── DEPLOYMENT_CHECKLIST.md
+│   ├── PROJECT_STRUCTURE.md
+│   └── JENKINS_SETUP.md
+├── jenkins/               # Jenkins CI/CD pipeline
+│   ├── Jenkinsfile.setup  # Install dependencies (run once)
+│   ├── Jenkinsfile.lint   # Code quality checks (manual)
+│   ├── Jenkinsfile.test   # Run test suite (auto-triggered)
+│   ├── Jenkinsfile.build  # Build Docker image (auto-triggered)
+│   ├── Jenkinsfile.push   # Push to registry (auto-triggered)
+│   ├── README.md          # Job descriptions
+│   ├── PIPELINE_SETUP.md  # Configuration guide
+│   └── QUICK_CONFIG.md    # Quick reference
+├── scripts/               # Utility scripts
+│   ├── test_api.sh        # Test API endpoints
+│   ├── cleanup-aws-resources.sh      # Terminate EC2 instances
+│   ├── cleanup-local-deployment.sh   # Stop local services
+│   ├── cleanup-docker.sh  # Remove Docker containers
+│   └── README.md          # Scripts documentation
+├── Dockerfile             # Container definition (Alpine, Python 3.12)
+├── docker-compose.yml     # Docker Compose for local dev
+├── requirements.txt       # Production dependencies
+├── requirements-dev.txt   # Development dependencies
+├── pyproject.toml         # Project configuration
+├── .gitignore            # Git ignore rules
+├── .env.example          # Environment variables template
+└── README.md             # This file
 ```
 
 ## AWS Resources
@@ -357,20 +385,83 @@ See [scripts/README.md](scripts/README.md) for detailed documentation on all scr
 ## Documentation
 
 ### Getting Started
-- [README.md](README.md) - Overview and quick start (this file)
-- [Project Phases](docs/PROJECT_PHASES.md) - Development phases and timeline
+- **[README.md](README.md)** (this file) - Project overview, quick start, tech stack, API endpoints, security, monitoring, and logging
+
+- **[docs/PROJECT_PHASES.md](docs/PROJECT_PHASES.md)** - Development phases 1-9, deliverables, timeline, and critical path
+  - Phase 1: Setup & Dependencies
+  - Phase 2: FastAPI Core
+  - Phase 3: EC2 Integration
+  - Phase 4: SES Integration
+  - Phase 5: Async Tasks
+  - Phase 6: Docker & Containerization
+  - Phase 7: Jenkins CI/CD ✅
+  - Phase 8: Testing & QA ✅
+  - Phase 9: Documentation & Deployment ✅
 
 ### Deployment & Operations
-- [AWS Setup Guide](docs/AWS_SETUP_GUIDE.md) - IAM, SES, VPC, Security Groups
-- [Deployment Guide](docs/DEPLOYMENT_GUIDE.md) - EC2, Docker, Kubernetes deployment options
-- [Deployment Checklist](docs/DEPLOYMENT_CHECKLIST.md) - Pre/during/post deployment verification
+- **[docs/AWS_SETUP_GUIDE.md](docs/AWS_SETUP_GUIDE.md)** (536 lines) - Complete AWS resource setup
+  - IAM role and policy creation (CLI + Console)
+  - SES email verification and sandbox configuration
+  - VPC and security group setup with inbound rules
+  - Free Tier limits and cost monitoring
+  - Troubleshooting guide (7 common issues)
+
+- **[docs/DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md)** (682 lines) - Multi-option deployment procedures
+  - EC2 + Systemd deployment (with systemd service file)
+  - Docker Compose production deployment
+  - Kubernetes (EKS) deployment (with manifests)
+  - Health checks and monitoring setup (CloudWatch, Prometheus)
+  - Production hardening (security, firewall, rate limiting, TLS)
+  - Rollback procedures for all deployment types
+  - Troubleshooting common deployment issues
+
+- **[docs/DEPLOYMENT_CHECKLIST.md](docs/DEPLOYMENT_CHECKLIST.md)** (393 lines) - Comprehensive deployment verification
+  - Pre-deployment checklist (32 items: AWS account, IAM, SES, code, Docker)
+  - Day-of-deployment checklist (50+ items: testing, execution)
+  - Post-deployment verification (25+ items: first 24 hours)
+  - Weekly/monthly/annual operations checklists
+  - Rollback decision criteria
+  - Sign-off requirements
 
 ### Reference
-- [Commands Reference](docs/COMMANDS_REFERENCE.md) - All commands by technology (AWS, Python, Docker, Jenkins)
-- [Issues Log](docs/ISSUES.md) - Known issues and solutions from all phases
-- [Project Structure](docs/PROJECT_STRUCTURE.md) - Detailed directory layout
-- [Scripts README](scripts/README.md) - Cleanup and testing scripts documentation
+- **[docs/COMMANDS_REFERENCE.md](docs/COMMANDS_REFERENCE.md)** (1600+ lines) - All development commands
+  - Python: pip, pytest, ruff, black commands
+  - AWS: IAM, SES, EC2, CloudWatch CLI commands
+  - Docker: build, run, compose, cleanup commands
+  - Git: clone, commit, push, branch commands
+  - Jenkins: job trigger and monitoring commands
+  - Cleanup scripts: test_api.sh, cleanup-*.sh commands
+  - Phase 9 deployment commands and monitoring
+
+- **[docs/ISSUES.md](docs/ISSUES.md)** (770 lines) - Known issues and solutions
+  - Phase 1-7 issues with root causes and solutions
+  - Issue template for future issues
+  - Severity levels (Critical, High, Medium, Low)
+  - Known limitations and Free Tier constraints
+  - Troubleshooting guidance
+
+- **[docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md)** - Detailed directory layout and file descriptions
+
+- **[jenkins/README.md](jenkins/README.md)** - Jenkins pipeline documentation
+  - 5 modular jobs: setup, lint, test, build, push
+  - Job descriptions and timing expectations
+  - Workflow diagrams and performance metrics
+  - Troubleshooting guide
+
+- **[jenkins/PIPELINE_SETUP.md](jenkins/PIPELINE_SETUP.md)** - Step-by-step Jenkins configuration
+  - Detailed setup for each of 5 jobs
+  - Auto-triggering configuration with Parameterized Trigger Plugin
+  - Full pipeline execution examples
+
+- **[jenkins/QUICK_CONFIG.md](jenkins/QUICK_CONFIG.md)** - Quick reference for Jenkins configuration
+
+- **[scripts/README.md](scripts/README.md)** - Utility scripts documentation
+  - cleanup-aws-resources.sh - Terminate EC2 instances
+  - cleanup-local-deployment.sh - Stop local services
+  - cleanup-docker.sh - Remove Docker containers
+  - test_api.sh - Test API endpoints
 
 ### API Documentation
-- **Swagger UI:** http://localhost:8000/docs (interactive API docs)
-- **ReDoc:** http://localhost:8000/redoc (alternative API documentation)
+- **Swagger UI:** http://localhost:8000/docs - Interactive API documentation with try-it-out capability
+- **ReDoc:** http://localhost:8000/redoc - Alternative API documentation format
+- **OpenAPI Schema:** http://localhost:8000/openapi.json - Machine-readable API specification
