@@ -707,6 +707,69 @@ Phase 9 focused on comprehensive documentation for production deployment. All do
 
 ---
 
+## Utility Scripts
+
+### Summary
+Created comprehensive bash cleanup scripts for managing development and deployment environments.
+
+### Scripts Created
+
+1. **cleanup-aws-resources.sh** (247 lines, 7.4KB)
+   - Terminates EC2 instances to avoid Free Tier overages
+   - Lists instances with ID, type, and name
+   - Safe --dry-run mode to preview terminations
+   - Confirmation prompts (--force to skip)
+
+2. **cleanup-local-deployment.sh** (275 lines, 7.1KB)
+   - Stops uvicorn API server processes
+   - Stops systemd ec2-automator service
+   - Stops nginx reverse proxy
+   - Selective service stopping (--uvicorn, --systemd, --nginx)
+   - Port status checking (8000, 80)
+
+3. **cleanup-docker.sh** (277 lines, 8.0KB)
+   - Stops and removes Docker containers
+   - Optional image removal (--remove-images)
+   - Checks for orphaned volumes and networks
+   - Reports Docker disk usage
+
+4. **test_api.sh** (50 lines, 1.4KB)
+   - Tests all 5 API endpoints
+   - Extracts task_id from launch response
+   - Pretty-prints JSON with jq
+
+### Documentation
+- **scripts/README.md** - Comprehensive guide with examples, troubleshooting, and safety tips
+
+### Features
+- ✓ Color-coded output (INFO/SUCCESS/WARNING/ERROR)
+- ✓ --help documentation for all scripts
+- ✓ --dry-run mode (AWS, Docker) to preview changes safely
+- ✓ --force flag to skip confirmations
+- ✓ Confirmation prompts before destructive operations
+- ✓ Error handling and validation
+- ✓ Status verification and reporting
+
+### Usage Examples
+```bash
+# Test endpoints
+bash scripts/test_api.sh
+
+# Clean up (safe progression)
+bash scripts/cleanup-local-deployment.sh
+bash scripts/cleanup-docker.sh --dry-run
+bash scripts/cleanup-aws-resources.sh --dry-run
+bash scripts/cleanup-aws-resources.sh  # Execute
+```
+
+### Key Safety Features
+- Always use --dry-run first to preview changes
+- Confirmation prompts before deleting (--force overrides)
+- No automatic deletions without user consent
+- Detailed status reporting after cleanup
+
+---
+
 ## Known Limitations
 
 ### Free Tier Hours

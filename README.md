@@ -333,6 +333,27 @@ pytest --cov=app
 
 MIT
 
+## Utility Scripts
+
+EC2-Automator includes cleanup and testing scripts in the `scripts/` directory:
+
+```bash
+# Test API endpoints
+bash scripts/test_api.sh
+
+# Clean up local services (uvicorn, systemd, nginx)
+bash scripts/cleanup-local-deployment.sh
+
+# Clean up Docker containers and images
+bash scripts/cleanup-docker.sh
+
+# Clean up AWS resources (terminate EC2 instances)
+bash scripts/cleanup-aws-resources.sh --dry-run       # Preview
+bash scripts/cleanup-aws-resources.sh                 # Execute
+```
+
+See [scripts/README.md](scripts/README.md) for detailed documentation on all scripts.
+
 ## Documentation
 
 ### Getting Started
@@ -348,6 +369,7 @@ MIT
 - [Commands Reference](docs/COMMANDS_REFERENCE.md) - All commands by technology (AWS, Python, Docker, Jenkins)
 - [Issues Log](docs/ISSUES.md) - Known issues and solutions from all phases
 - [Project Structure](docs/PROJECT_STRUCTURE.md) - Detailed directory layout
+- [Scripts README](scripts/README.md) - Cleanup and testing scripts documentation
 
 ### API Documentation
 - **Swagger UI:** http://localhost:8000/docs (interactive API docs)

@@ -334,6 +334,23 @@ black==23.12.0+
 
 ---
 
+## Utility Scripts
+
+### Created After Phase 9
+**Purpose:** Help manage development/deployment cleanup and API testing
+
+**Scripts:**
+1. **cleanup-aws-resources.sh** - Terminate EC2 instances (safe with --dry-run)
+2. **cleanup-local-deployment.sh** - Stop local services (uvicorn, systemd, nginx)
+3. **cleanup-docker.sh** - Clean up Docker containers and images
+4. **test_api.sh** - Test all API endpoints (health, options, launch, status, terminate)
+
+**Location:** `scripts/` directory
+
+**Documentation:** `scripts/README.md` (comprehensive guide with examples)
+
+---
+
 ## Critical Path
 1. Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 (Core API)
 2. Phase 6 (Docker) - parallel with Phase 5
@@ -347,3 +364,6 @@ black==23.12.0+
 - AWS resources should be created/configured before starting Phase 3
 - Testing (Phase 8) should happen incrementally, not just at the end
 - Documentation should be updated as code is written
+- Use cleanup scripts regularly to avoid Free Tier overages
+- Always use --dry-run before making destructive changes
+- All scripts include comprehensive help documentation (--help)

@@ -1589,6 +1589,98 @@ aws cloudwatch get-metric-statistics \
 
 ---
 
+## Cleanup Scripts
+
+### Test API Endpoints
+```bash
+bash scripts/test_api.sh
+```
+**What it does:** Tests all API endpoints (health, options, launch, status, terminate)
+**Requirements:** API server running on localhost:8000, curl, jq
+**Expected output:**
+```
+=== EC2-Automator API Tests ===
+1. Testing health check endpoint...
+{"status":"healthy","service":"ec2-automator"}
+2. Testing GET /options endpoint...
+{"instance_types":["t3.micro","t3.small"],"apps":["nginx","mysql","httpd","mongo"]}
+3. Testing POST /launch endpoint...
+{"task_id":"abc123...","status":"accepted"}
+4. Testing GET /status/{task_id} endpoint...
+{"task_id":"abc123...","status":"completed","instance_id":"i-1234567890abcdef0"}
+5. Testing DELETE /terminate endpoint...
+{"detail":"Failed to terminate instance: An error occurred..."}
+=== Tests Complete ===
+```
+
+### Clean Up Local Services
+```bash
+bash scripts/cleanup-local-deployment.sh              # Stop all services
+bash scripts/cleanup-local-deployment.sh --uvicorn   # Stop only uvicorn
+bash scripts/cleanup-local-deployment.sh --systemd   # Stop only systemd
+bash scripts/cleanup-local-deployment.sh --nginx      # Stop only nginx
+```
+**What it does:** Stops uvicorn, systemd ec2-automator service, and nginx
+**Expected output:**
+```
+[SUCCESS] ✓ Uvicorn stopped
+[SUCCESS] ✓ Systemd service stopped
+[SUCCESS] ✓ Nginx stopped
+[INFO] - Port 8000: FREE
+[INFO] - Port 80:   FREE
+```
+
+### Clean Up Docker
+```bash
+bash scripts/cleanup-docker.sh --dry-run              # Preview changes
+bash scripts/cleanup-docker.sh                        # Remove containers
+bash scripts/cleanup-docker.sh --remove-images        # Also remove images
+bash scripts/cleanup-docker.sh --force                # No confirmations
+```
+**What it does:** Stops and removes Docker containers, optionally removes images
+**Expected output:**
+```
+[SUCCESS] Docker is installed and running
+[INFO] Checking for ec2-automator containers...
+[SUCCESS] Containers removed
+[INFO] Docker disk usage: 313MB in images
+```
+
+### Clean Up AWS Resources
+```bash
+bash scripts/cleanup-aws-resources.sh --dry-run       # Preview terminations
+bash scripts/cleanup-aws-resources.sh                 # Terminate with confirmation
+bash scripts/cleanup-aws-resources.sh --force         # Terminate without asking
+```
+**What it does:** Terminates EC2 instances to avoid Free Tier overages
+**Requirements:** AWS CLI configured with credentials
+**Expected output:**
+```
+[SUCCESS] AWS credentials verified (Account: 903609216629)
+[WARNING] Found running EC2 instances:
+  i-0d7570b79cd362c57  t3.micro  test-instance
+[INFO] Terminating EC2 instances...
+[SUCCESS] All instances terminated
+```
+
+### Complete Cleanup Sequence
+```bash
+# Stop all local services
+bash scripts/cleanup-local-deployment.sh
+
+# Remove Docker containers
+bash scripts/cleanup-docker.sh
+
+# Preview AWS cleanup
+bash scripts/cleanup-aws-resources.sh --dry-run
+
+# Execute AWS cleanup
+bash scripts/cleanup-aws-resources.sh
+```
+**Time:** ~2-3 minutes total
+
+---
+
 ## Notes
 - All AWS commands assume you have AWS CLI configured with credentials
 - Replace example values (instance IDs, email addresses, etc.) with actual values
