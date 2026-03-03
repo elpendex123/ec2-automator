@@ -290,31 +290,19 @@ docker build -t ec2-automator:test .
 
 ## Running the Pipeline
 
-### Manual Trigger
+### Manual Trigger (Recommended)
 
-1. Go to job **ec2-automator**
+1. Go to job **ec2-automator** in Jenkins
 2. Click **Build Now**
 3. Monitor build progress in **Console Output**
+4. Review logs, test results, and coverage report
 
-### Webhook Trigger (GitHub Integration)
-
-1. Go to GitHub repository > **Settings** > **Webhooks**
-2. Click **Add webhook**
-3. **Payload URL:** `http://jenkins-url/github-webhook/`
-4. **Content type:** `application/json`
-5. **Events:** Push events
-6. Click **Add webhook**
-
-Now pushes to GitHub automatically trigger Jenkins builds.
-
-### Scheduled Builds
-
-1. Go to job **Configure**
-2. Under **Build Triggers**, select **Build periodically**
-3. Enter cron schedule:
-   - `H H * * *` - Daily at midnight
-   - `H H(0-6) * * *` - Daily early morning
-   - `H H * * MON` - Weekly on Monday
+**Why Manual Deployment?**
+- Full control over when builds and deployments happen
+- Prevents accidental Docker pushes
+- Safe for Free Tier environments
+- You review changes before deploying
+- No unwanted infrastructure changes
 
 ## Troubleshooting
 
