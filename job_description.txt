@@ -1,0 +1,39 @@
+Senior Software Engineer
+Herndon, VA
+
+Dark Wolf is looking for a Sr Software Engineer in the Colorado Springs, CO, Herndon, VA, Omaha, NE, San Antonio, TX, or Tampa, FL metropolitan areas to support development of a mission critical software product for a DoD customer. The candidate will work within an agile team and fast-paced environment leveraging modern DevSecOps practices and technologies to rapidly deliver software capabilities to the warfighter spanning both cloud and forward deployed edge environments. 
+
+Responsibilities include: 
+
+    As part of an Agile team, use DevSecOps best practices to rapidly develop and deliver first class solutions for a DoD customer.
+    Develop software using leading languages and frameworks including Python and FastAPI, JavaScript and React, and AWS.
+    Leverage Test Driven Development and User Centered design best practices automate testing and ensure delivered software meets and exceeds customer needs.
+    Apply software design best practices to identify and analyze potential solutions, generate design diagrams to convey and capture system design, and participate in technical exchange meetings to discuss with the team and customer stakeholders.
+    Embrace a shared responsibility for system security. Perform threat modeling to identify and mitigate system security threats, implement protective and preventive security measures continuously throughout the software development lifecycle.
+    Continuously engage with project teams to deliver quality products.
+    Communication - Participate in daily standups, sprint planning/review meetings, discover and framing workshops, and customer demo sessions.
+
+Required Qualifications:
+
+    B.S. in Computer Science (or equivalent experience) and at least 6 - 8 years professional experience working as part of an Agile team using DevOps practices and modern programming languages and frameworks to develop and engineer services and applications to cloud platforms.
+    Expertise developing applications with React and Python
+    Experience using Docker and/or OCI compliant containers
+    Experience completing tasks / user stories to implement software features independently to include design, development, and unit testing
+    Strong Linux environment skills
+    Experience with building and consuming REST APIs
+
+Desired Qualifications:
+
+    Bachelor’s Degree or MS in Engineering or equivalent
+    Security+ Certification
+    Experience with Kubernetes and microservice architectures
+    Experience with implementing applications in a disconnected, intermittent, and limited environment
+    Experience using Commercial Cloud Providers such as AWS, GCP, or Azure to host applications/services (CSP Certification can be substituted for experience).
+    Experience with React with Electron framework
+    Experience with Gitlab CI and/or Jenkins pipelines
+    Experience with Universal Windows Platform and/or Windows Development
+    Experience with Nullsoft Scriptable Install System
+    US Citizenship and the ability to obtain a Secret security clearance
+
+This position can either be in Herndon, Va, Colorado Springs, CO or Ogden, UT, with remote/hybrid flexibility. The salary range for this position is estimated to be between $160,000.00 - $180,000.00, commensurate on experience and interview performance. 
+ 
