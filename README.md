@@ -55,6 +55,27 @@ uvicorn app.main:app --reload
 # Swagger docs at http://localhost:8000/docs
 ```
 
+### Running with Docker
+
+```bash
+# Build Docker image
+docker build -t ec2-automator .
+
+# Run Docker container
+docker run -d \
+  -p 8000:8000 \
+  -e AWS_REGION=us-east-1 \
+  -e SES_SENDER_EMAIL=your-email@example.com \
+  -v ~/.aws:/root/.aws:ro \
+  ec2-automator
+
+# Or use docker-compose
+docker-compose up -d
+
+# Stop container
+docker-compose down
+```
+
 ### Running Tests
 
 ```bash
