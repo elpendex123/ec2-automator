@@ -626,9 +626,461 @@ Jenkinsfile validated successfully
 
 ---
 
+---
+
+## Python Testing (Advanced)
+
+### Run Tests with Coverage Report
+```bash
+python3.10 -m pytest tests/ -v --cov=app --cov-report=term-missing
+```
+**What it does:** Runs all tests with verbose output, shows code coverage with missing line numbers
+**Arguments:**
+- `-v`: Verbose output showing each test
+- `--cov=app`: Measure coverage for app/ directory
+- `--cov-report=term-missing`: Show missing lines in terminal
+
+**Expected output:**
+```
+tests/unit/test_models.py::TestLaunchInstanceRequest::test_valid_request PASSED [10%]
+...
+======================== 55 passed in 5.44s ========================
+Name                         Stmts   Miss  Cover   Missing
+app/models.py                  30      0   100%
+app/endpoints.py               53     14    74%   68-76, 118-120
+TOTAL                         340     64    81%
+```
+
+### Run Specific Test Class
+```bash
+python3.10 -m pytest tests/unit/test_models.py::TestLaunchInstanceRequest -v
+```
+**What it does:** Runs only tests in a specific class
+**Arguments:**
+- `::ClassName`: Filter to specific test class
+
+**Expected output:**
+```
+tests/unit/test_models.py::TestLaunchInstanceRequest::test_valid_request PASSED
+tests/unit/test_models.py::TestLaunchInstanceRequest::test_invalid_app_name PASSED
+...
+======================== 6 passed in 0.45s ========================
+```
+
+### Run Tests with Auto-reload on Change
+```bash
+python3.10 -m pytest tests/ --watch
+```
+**What it does:** Re-runs tests whenever test files change (requires pytest-watch)
+**Expected output:**
+```
+Test session started
+collected 55 items
+...
+[Re-running on file change...]
+```
+
+---
+
+## Code Quality (Linting & Formatting)
+
+### Check Code with Ruff (Show Issues)
+```bash
+python3.10 -m ruff check app/ tests/
+```
+**What it does:** Scans code for style/error issues without modifying
+**Expected output:**
+```
+F401 [*] `app.tasks.task_store` imported but unused
+ --> app/background.py:6:23
+help: Remove unused import: `app.tasks.task_store`
+```
+
+### Auto-fix Ruff Issues
+```bash
+python3.10 -m ruff check app/ tests/ --fix
+```
+**What it does:** Automatically fixes fixable issues (removing unused imports, etc.)
+**Arguments:**
+- `--fix`: Apply fixes directly to files
+
+**Expected output:**
+```
+Found 12 errors (12 fixed, 0 remaining).
+```
+
+### Check Code Formatting (Black)
+```bash
+python3.10 -m black --check app/ tests/
+```
+**What it does:** Checks if code conforms to Black formatting without modifying
+**Expected output:**
+```
+would reformat app/background.py
+would reformat app/models.py
+2 files would be reformatted.
+```
+
+### Apply Code Formatting (Black)
+```bash
+python3.10 -m black app/ tests/
+```
+**What it does:** Automatically formats all code to PEP 8 style
+**Expected output:**
+```
+reformatted app/aws/ec2.py
+reformatted app/models.py
+All done! 2 files reformatted.
+```
+
+---
+
+## Docker (Phase 6+)
+
+### Build Docker Image
+```bash
+docker build -t ec2-automator:latest .
+```
+**What it does:** Builds Docker image from Dockerfile in current directory
+**Arguments:**
+- `-t`: Tag name (image name:version)
+- `.`: Build context (current directory)
+
+**Expected output:**
+```
+Step 1/9 : FROM python:3.12-alpine
+Step 2/9 : WORKDIR /app
+...
+Step 9/9 : CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+Successfully built 281d0e22941b
+Successfully tagged ec2-automator:latest
+```
+
+### Run Docker Container (Detached)
+```bash
+docker run -d --name ec2-automator-test -p 8000:8000 \
+  -e AWS_REGION=us-east-1 \
+  -e SES_SENDER_EMAIL=enrique.coello@gmail.com \
+  ec2-automator
+```
+**What it does:** Runs container in background with environment variables
+**Arguments:**
+- `-d`: Detached mode (background)
+- `--name`: Container name
+- `-p 8000:8000`: Port mapping (host:container)
+- `-e`: Environment variables
+- Last arg: Image name
+
+**Expected output:**
+```
+f3b44f5219c6...  (Container ID)
+```
+
+### Stop Docker Container
+```bash
+docker stop ec2-automator-test
+```
+**What it does:** Gracefully stops a running container
+**Expected output:**
+```
+ec2-automator-test
+```
+
+### Remove Docker Container
+```bash
+docker rm ec2-automator-test
+```
+**What it does:** Removes a stopped container
+**Expected output:**
+```
+ec2-automator-test
+```
+
+### View Docker Container Logs
+```bash
+docker logs ec2-automator-test
+```
+**What it does:** Shows logs from container stdout/stderr
+**Expected output:**
+```
+INFO:     Uvicorn running on http://0.0.0.0:8000
+INFO:     Application startup complete
+```
+
+### List Running Containers
+```bash
+docker ps
+```
+**What it does:** Shows all running containers
+**Expected output:**
+```
+CONTAINER ID   IMAGE              COMMAND                 CREATED        STATUS
+f3b44f521f6    ec2-automator      "uvicorn app.main:a..."  2 minutes ago  Up 2 minutes
+```
+
+### Remove Docker Image
+```bash
+docker rmi ec2-automator:latest
+```
+**What it does:** Removes a Docker image
+**Expected output:**
+```
+Untagged: ec2-automator:latest
+Deleted: sha256:281d0e22941b...
+```
+
+---
+
+## Troubleshooting Commands
+
+### Check Port Usage
+```bash
+lsof -i :8000
+```
+**What it does:** Shows which process is using port 8000
+**Arguments:**
+- `-i :PORT`: Check specific port
+- Use for any port: `:8001`, `:5432`, etc.
+
+**Expected output:**
+```
+COMMAND    PID    USER   FD   TYPE DEVICE SIZE NODE NAME
+uvicorn  31761 enrique    6u  IPv4 215405      0 TCP *:8000 (LISTEN)
+```
+
+### Kill Process Using Port
+```bash
+lsof -i :8000 | grep LISTEN | awk '{print $2}' | xargs kill -9
+```
+Or simpler:
+```bash
+pkill -f uvicorn
+```
+**What it does:** Terminates the process using port 8000
+**Arguments:**
+- `-9`: Force kill signal
+- `-f`: Match full command name (not just process name)
+
+**Expected output:**
+```
+(No output, process terminated)
+```
+
+### Check if Port is Free
+```bash
+lsof -i :8000 2>/dev/null || echo "Port 8000 is free"
+```
+**What it does:** Checks port availability
+**Expected output:**
+```
+Port 8000 is free
+```
+Or:
+```
+COMMAND    PID    USER   FD   TYPE DEVICE SIZE NODE NAME
+[process info]
+```
+
+### Verify Python Version in Virtual Environment
+```bash
+python3.10 -c "import sys; print(sys.version)"
+```
+**What it does:** Shows Python version being used
+**Expected output:**
+```
+3.10.12 (main, ... Linux)
+```
+
+### List Installed Packages
+```bash
+pip list | grep -E "pytest|boto3|fastapi"
+```
+**What it does:** Shows installed versions of specific packages
+**Arguments:**
+- `grep -E`: Filter package names with regex
+
+**Expected output:**
+```
+boto3                 1.36.5
+fastapi               0.115.4
+pytest                9.0.2
+```
+
+### Check if Module Can Be Imported
+```bash
+python3.10 -c "import moto; print('moto installed')"
+```
+**What it does:** Tests if a Python module is available
+**Expected output:**
+```
+moto installed
+```
+
+---
+
+## AWS CLI (Free Tier)
+
+### Check Free Tier Eligible Instance Types
+```bash
+aws ec2 describe-instance-types --filters "Name=free-tier-eligible,Values=true" \
+  --query 'InstanceTypes[].InstanceType' --output text
+```
+**What it does:** Lists all Free Tier eligible instance types
+**Arguments:**
+- `--filters`: Filter by free-tier-eligible
+- `--query`: Extract only InstanceType field
+- `--output text`: Plain text output
+
+**Expected output:**
+```
+t3.micro t3.small t4g.micro t4g.small c7i-flex.large m7i-flex.large
+```
+
+### List Running EC2 Instances (Table Format)
+```bash
+aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" \
+  --query 'Reservations[].Instances[].{ID:InstanceId,Name:Tags[?Key==`Name`]|[0].Value,Type:InstanceType}' \
+  --output table
+```
+**What it does:** Shows all running instances with ID, Name, and Type in table format
+**Expected output:**
+```
+------------------------------------------
+|     DescribeInstances                  |
++--------+----────+---------+------------+
+| ID     | Name   | Type    |
++--------+----────+---------+------------+
+| i-1234 | web-01 | t3.micro |
++--------+----────+---------+------------+
+```
+
+### Terminate Multiple EC2 Instances
+```bash
+aws ec2 terminate-instances --instance-ids i-123 i-456 i-789
+```
+**What it does:** Terminates specified instances (saves Free Tier hours)
+**Arguments:**
+- `--instance-ids`: Space-separated list of instance IDs
+
+**Expected output:**
+```
+TerminatingInstances:
+  - InstanceId: i-123
+    CurrentState: shutting-down
+```
+
+### Get Instance Types for Free Tier (x86_64 Linux only)
+```bash
+aws ec2 describe-instance-types --filters \
+  "Name=free-tier-eligible,Values=true" \
+  "Name=processor-info.valid-architectures,Values=x86_64" \
+  --query 'InstanceTypes[].InstanceType' --output text
+```
+**What it does:** Lists Free Tier x86_64 instance types (filters out ARM types)
+**Expected output:**
+```
+t3.micro t3.small c7i-flex.large m7i-flex.large
+```
+
+### List SES Verified Email Addresses
+```bash
+aws ses list-identities --region us-east-1
+```
+**What it does:** Shows all verified email addresses in SES
+**Arguments:**
+- `--region`: SES region
+
+**Expected output:**
+```
+{
+    "Identities": [
+        "enrique.coello@gmail.com"
+    ]
+}
+```
+
+### Send Test Email via SES (CLI)
+```bash
+aws ses send-email --from enrique.coello@gmail.com \
+  --to enrique.coello@gmail.com \
+  --subject "Test Email" \
+  --text "This is a test" \
+  --region us-east-1
+```
+**What it does:** Sends a test email via AWS SES to verify it works
+**Expected output:**
+```
+{
+    "MessageId": "000001234567890-abcdef..."
+}
+```
+
+---
+
+## Git Commands (Advanced)
+
+### Remove File from Git Tracking (Keep Locally)
+```bash
+git rm --cached CLAUDE.md
+```
+**What it does:** Stops tracking file without deleting it locally
+**Expected output:**
+```
+rm 'CLAUDE.md'
+```
+
+### Add to Gitignore and Commit
+```bash
+echo "CLAUDE.md" >> .gitignore
+git add .gitignore
+git commit -m "Add CLAUDE.md to gitignore"
+```
+**What it does:** Ensures file is never committed in future
+
+### Show What Would Be Committed
+```bash
+git diff --cached
+```
+**What it does:** Shows staged changes before committing
+**Expected output:**
+```
+diff --git a/app/main.py b/app/main.py
++new_line_added
+-old_line_removed
+```
+
+### Revert Last Commit (Keep Changes)
+```bash
+git reset --soft HEAD~1
+```
+**What it does:** Undoes last commit but keeps changes staged
+**Arguments:**
+- `--soft`: Keep changes staged
+- `--mixed`: Keep changes unstaged
+- `--hard`: Discard changes (danger!)
+
+### View Recent Commits
+```bash
+git log --oneline -10
+```
+**What it does:** Shows last 10 commits in one-line format
+**Expected output:**
+```
+4da19ea Phase 6: Docker complete
+ae0ad89 Phase 5: Testing complete
+a1b2c3d Phase 4: Email integration
+...
+```
+
+---
+
 ## Notes
 - All AWS commands assume you have AWS CLI configured with credentials
 - Replace example values (instance IDs, email addresses, etc.) with actual values
 - Port 8000 is the default FastAPI port; adjust if using different port
 - Docker commands assume Docker is installed and running
 - Git commands assume repository is initialized
+- Use `python3.10` for consistent Python version (avoid environment issues)
+- Always use virtual environments (venv) for Python projects
+- Check Free Tier limits regularly: `aws ec2 describe-instances`
+- Kill old processes before starting new services: `pkill -f uvicorn`
