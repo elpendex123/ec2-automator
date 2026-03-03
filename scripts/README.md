@@ -2,6 +2,22 @@
 
 Utility scripts for managing EC2-Automator development and deployment.
 
+## Quick Start
+
+```bash
+# Test API endpoints
+bash scripts/test_api.sh
+
+# Clean up local services
+bash scripts/cleanup-local-deployment.sh
+
+# Clean up Docker containers
+bash scripts/cleanup-docker.sh
+
+# Clean up AWS resources
+bash scripts/cleanup-aws-resources.sh --dry-run
+```
+
 ## Available Scripts
 
 ### 1. cleanup-aws-resources.sh
@@ -309,15 +325,57 @@ bash scripts/cleanup-docker.sh --remove-images
 
 ---
 
-## Other Scripts
+## API Testing
 
 ### test_api.sh
 
-Test API endpoints locally.
+Test all API endpoints with curl and jq.
+
+**Purpose:** Quick functional test of all API endpoints without needing external tools.
 
 **Usage:**
 ```bash
+# Make sure API server is running first
+python3.10 -m uvicorn app.main:app --reload
+
+# In another terminal:
 bash scripts/test_api.sh
+```
+
+**Features:**
+- ✅ Tests /health endpoint
+- ✅ Tests GET /options endpoint
+- ✅ Tests POST /launch endpoint
+- ✅ Tests GET /status/{task_id} endpoint
+- ✅ Tests DELETE /terminate/{instance_id} endpoint
+- ✅ Extracts and uses task_id from launch response
+- ✅ Pretty-prints JSON responses with jq
+
+**Requirements:**
+- API server running on localhost:8000
+- curl installed
+- jq installed (for JSON formatting)
+
+**Example Output:**
+```
+=== EC2-Automator API Tests ===
+
+1. Testing health check endpoint...
+{"status":"healthy","service":"ec2-automator"}
+
+2. Testing GET /options endpoint...
+{"instance_types":["t3.micro","t3.small"],"apps":["nginx","mysql","httpd","mongo"]}
+
+3. Testing POST /launch endpoint...
+{"task_id":"abc123","status":"accepted","message":"Instance launch initiated"}
+
+4. Testing GET /status/{task_id} endpoint (task_id: abc123)...
+{"task_id":"abc123","status":"completed","instance_id":"i-1234567890abcdef0"}
+
+5. Testing DELETE /terminate endpoint...
+{"message":"Termination requested","instance_id":"i-1234567890abcdef0"}
+
+=== Tests Complete ===
 ```
 
 ---
