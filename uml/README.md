@@ -186,9 +186,9 @@ bash generate.sh
 ```
 
 **Output files:**
-- `dependencies.svg` - High-level module dependencies
-- `dependencies_detailed.svg` - All import relationships
-- `dependencies_clustered.svg` - Grouped by package
+- `dependencies_shallow.svg` - Direct imports only (max-bacon=1)
+- `dependencies_moderate.svg` - Secondary imports included (max-bacon=2)
+- `dependencies_deep.svg` - Full dependency tree (max-bacon=3)
 
 ---
 
@@ -385,9 +385,9 @@ uml/
 │   └── README.md
 ├── pydeps/
 │   ├── generate.sh                    # Generate dependency graphs
-│   ├── dependencies.svg
-│   ├── dependencies_detailed.svg
-│   ├── dependencies_clustered.svg
+│   ├── dependencies_shallow.svg        # Direct imports (max-bacon=1)
+│   ├── dependencies_moderate.svg       # Secondary imports (max-bacon=2)
+│   ├── dependencies_deep.svg           # Full tree (max-bacon=3)
 │   └── README.md
 ├── diagrams/
 │   ├── generate_architecture.py       # Python script for diagrams

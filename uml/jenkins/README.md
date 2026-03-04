@@ -416,7 +416,7 @@ sh '''
 
 ### Dependencies
 
-![Module Dependencies](uml/pydeps/dependencies.svg)
+![Module Dependencies](uml/pydeps/dependencies_deep.svg)
 ```
 
 ## Advanced Configuration

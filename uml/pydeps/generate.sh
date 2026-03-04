@@ -26,27 +26,29 @@ if ! command -v pydeps &> /dev/null; then
     exit 1
 fi
 
-# Generate basic dependency graph (max-bacon=3 for cleaner output)
-echo "Generating high-level dependency graph..."
-pydeps "$PROJECT_APP_DIR" --max-bacon=3 -o dependencies.svg || {
-    echo "Error: pydeps generation failed for basic graph"
+# Generate shallow dependency graph (max-bacon=1 - direct imports only)
+echo "Generating shallow dependency graph (max-bacon=1)..."
+pydeps "$PROJECT_APP_DIR" --max-bacon=1 -o dependencies_shallow.svg || {
+    echo "Error: pydeps generation failed for shallow graph"
     exit 1
 }
-echo "✓ Generated: dependencies.svg"
+echo "✓ Generated: dependencies_shallow.svg"
 
-# Generate detailed dependency graph (all imports)
-echo "Generating detailed dependency graph (all imports)..."
-pydeps "$PROJECT_APP_DIR" --max-bacon=10 --show-deps -o dependencies_detailed.svg || {
-    echo "Warning: detailed graph generation had issues"
+# Generate moderate dependency graph (max-bacon=2 - secondary imports)
+echo "Generating moderate dependency graph (max-bacon=2)..."
+pydeps "$PROJECT_APP_DIR" --max-bacon=2 -o dependencies_moderate.svg || {
+    echo "Error: pydeps generation failed for moderate graph"
+    exit 1
 }
-echo "✓ Generated: dependencies_detailed.svg"
+echo "✓ Generated: dependencies_moderate.svg"
 
-# Generate clustered dependency graph (grouped by package)
-echo "Generating clustered dependency graph..."
-pydeps "$PROJECT_APP_DIR" --cluster -o dependencies_clustered.svg || {
-    echo "Warning: clustered graph generation had issues"
+# Generate deep dependency graph (max-bacon=3 - full dependency tree)
+echo "Generating deep dependency graph (max-bacon=3)..."
+pydeps "$PROJECT_APP_DIR" --max-bacon=3 -o dependencies_deep.svg || {
+    echo "Error: pydeps generation failed for deep graph"
+    exit 1
 }
-echo "✓ Generated: dependencies_clustered.svg"
+echo "✓ Generated: dependencies_deep.svg"
 
 echo ""
 echo "=== pydeps generation complete ==="
@@ -55,9 +57,9 @@ echo "Generated files:"
 ls -lh dependencies*.svg 2>/dev/null | awk '{print "  - " $9 " (" $5 ")"}'
 echo ""
 echo "View diagrams with any SVG viewer or web browser:"
-echo "  - dependencies.svg              (High-level dependencies)"
-echo "  - dependencies_detailed.svg     (All import relationships)"
-echo "  - dependencies_clustered.svg    (Grouped by package)"
+echo "  - dependencies_shallow.svg      (Max-bacon=1, direct imports only)"
+echo "  - dependencies_moderate.svg     (Max-bacon=2, includes secondary imports)"
+echo "  - dependencies_deep.svg         (Max-bacon=3, full dependency tree)"
 echo ""
 echo "Note: SVG files are interactive in modern browsers"
 echo "You can zoom, pan, and hover for details"

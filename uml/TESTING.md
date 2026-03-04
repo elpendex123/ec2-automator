@@ -234,28 +234,28 @@ bash generate.sh
 === Generating pydeps dependency graphs ===
 Analyzing module imports and dependencies...
 
-Generating high-level dependency graph...
-✓ Generated: dependencies.svg
-Generating detailed dependency graph (all imports)...
-✓ Generated: dependencies_detailed.svg
-Generating clustered dependency graph...
-✓ Generated: dependencies_clustered.svg
+Generating shallow dependency graph (max-bacon=1)...
+✓ Generated: dependencies_shallow.svg
+Generating moderate dependency graph (max-bacon=2)...
+✓ Generated: dependencies_moderate.svg
+Generating deep dependency graph (max-bacon=3)...
+✓ Generated: dependencies_deep.svg
 
 === pydeps generation complete ===
 
 Generated files:
-  - dependencies.svg (...)
-  - dependencies_detailed.svg (...)
-  - dependencies_clustered.svg (...)
+  - dependencies_shallow.svg (...)
+  - dependencies_moderate.svg (...)
+  - dependencies_deep.svg (...)
 ```
 
 **Verification**:
 ```bash
 ls -lh uml/pydeps/
-# Should show 3+ SVG files (each > 10KB)
+# Should show 3 SVG files (each > 10KB)
 
 # Check SVG is valid XML:
-file uml/pydeps/dependencies.svg
+file uml/pydeps/dependencies_deep.svg
 # Should show: SVG Scalable Vector Graphics
 ```
 
@@ -438,9 +438,9 @@ Generated Files:
     - app.svg (...)
 
   pydeps/
-    - dependencies.svg (...)
-    - dependencies_detailed.svg (...)
-    - dependencies_clustered.svg (...)
+    - dependencies_shallow.svg (...)
+    - dependencies_moderate.svg (...)
+    - dependencies_deep.svg (...)
 
   diagrams/
     - ec2_automator_architecture.png (...)

@@ -4,22 +4,22 @@
 
 ## Overview
 
-pydeps creates three types of dependency visualizations:
+pydeps creates three levels of dependency visualization based on import depth:
 
-1. **High-level Dependencies** (`dependencies.svg`)
-   - Simplified view of module relationships
-   - Good for overview
-   - Fewer connection lines for clarity
+1. **Minimal Dependencies** (`dependencies_1.svg`, max-bacon=1)
+   - Closest direct imports only
+   - Cleanest, simplest view
+   - Best for quick understanding of module relationships
 
-2. **Detailed Dependencies** (`dependencies_detailed.svg`)
-   - All import relationships shown
-   - Shows every `from X import Y`
-   - Dense but comprehensive
+2. **Moderate Dependencies** (`dependencies_2.svg`, max-bacon=2)
+   - Direct imports plus one level deeper
+   - Good balance between detail and clarity
+   - Shows primary and secondary dependencies
 
-3. **Clustered Dependencies** (`dependencies_clustered.svg`)
-   - Grouped by package
-   - Shows inter-package dependencies
-   - Good for architecture review
+3. **Comprehensive Dependencies** (`dependencies.svg`, max-bacon=3)
+   - Three levels of import depth
+   - Most detailed view without overwhelming detail
+   - Shows complex dependency chains
 
 ## Installation
 
@@ -38,37 +38,44 @@ pydeps --help
 # Generate all dependency graphs
 bash generate.sh
 
-# View the SVG files
-# Open in browser or image viewer:
-# - dependencies.svg
-# - dependencies_detailed.svg
-# - dependencies_clustered.svg
+# View the SVG files (open in browser or image viewer):
+# - dependencies_shallow.svg   (direct imports only - max-bacon=1)
+# - dependencies_moderate.svg  (includes secondary imports - max-bacon=2)
+# - dependencies_deep.svg      (full dependency tree - max-bacon=3)
 ```
 
 ## What It Generates
 
 ### For EC2-Automator
 
+Three levels of dependency visualization based on import depth:
+
+**dependencies_shallow.svg** (max-bacon=1)
+- Direct imports only
+- Cleanest, simplest view
+- Best for quick understanding of immediate module relationships
+
+**dependencies_moderate.svg** (max-bacon=2)
+- Direct imports plus one level deeper
+- Good balance between detail and clarity
+- Shows primary and secondary dependencies
+
+**dependencies_deep.svg** (max-bacon=3)
+- Three levels of import depth
+- Most detailed view without overwhelming complexity
+- Shows complete dependency chains across the codebase
+
+Example structure (max-bacon=3):
 ```
-dependencies.svg (High-level)
-├── endpoints.py
-│   ├─ imports models.py
-│   ├─ imports background.py
-│   ├─ imports tasks.py
-│   └─ imports logging_config.py
-│
-├── background.py
-│   ├─ imports aws/ec2.py
-│   ├─ imports aws/ses.py
-│   ├─ imports tasks.py
-│   └─ imports logging_config.py
-│
-├── aws/ec2.py
-│   ├─ imports config.py
-│   └─ imports logging_config.py
-│
-└── aws/ses.py
-    └─ imports logging_config.py
+endpoints.py
+├─ imports models.py
+│  └─ imports pydantic
+├─ imports background.py
+│  ├─ imports aws/ec2.py
+│  │  └─ imports boto3
+│  ├─ imports aws/ses.py
+│  └─ imports tasks.py
+└─ imports logging_config.py
 ```
 
 ### Dependency Patterns
@@ -246,18 +253,20 @@ bash uml/pydeps/generate.sh
 ```bash
 # Before refactoring
 bash uml/pydeps/generate.sh
-cp dependencies.svg dependencies_before.svg
+cp dependencies_deep.svg dependencies_deep_before.svg
 
 # After refactoring
 bash uml/pydeps/generate.sh
-# Compare dependencies.svg with dependencies_before.svg
+# Compare dependencies_deep.svg with dependencies_deep_before.svg
 ```
 
 ### 3. Onboarding
 ```bash
 # Show new developers the module structure
-open uml/pydeps/dependencies.svg
-# "This is how modules depend on each other"
+# Start with shallow for quick overview, then use moderate/deep for deeper understanding
+open uml/pydeps/dependencies_shallow.svg    # "This is the basic structure"
+open uml/pydeps/dependencies_moderate.svg   # "Now let's see more details"
+open uml/pydeps/dependencies_deep.svg       # "And here's the complete picture"
 ```
 
 ## Troubleshooting
@@ -275,7 +284,7 @@ which pydeps
 
 ### SVG rendering issues
 - Use modern browser (Chrome, Firefox)
-- Try exporting to PNG: `convert dependencies.svg dependencies.png`
+- Try exporting to PNG: `convert dependencies_deep.svg dependencies_deep.png`
 - Check Graphviz: `which dot`
 
 ### Circular import detection

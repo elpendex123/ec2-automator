@@ -793,11 +793,11 @@ cd uml/plantuml && bash generate.sh
 ```bash
 cd uml/pydeps && bash generate.sh
 ```
-**What it does:** Analyzes and visualizes Python module dependencies
+**What it does:** Analyzes and visualizes Python module dependencies at different depth levels
 **Output files:**
-- `dependencies.svg` - High-level dependencies
-- `dependencies_detailed.svg` - All import relationships
-- `dependencies_clustered.svg` - Grouped by package
+- `dependencies_shallow.svg` - Direct imports only (max-bacon=1)
+- `dependencies_moderate.svg` - Secondary imports included (max-bacon=2)
+- `dependencies_deep.svg` - Full dependency tree (max-bacon=3)
 
 #### diagrams (AWS architecture)
 ```bash
@@ -828,7 +828,9 @@ eog uml/plantuml/sequence_launch.png         # GNOME Image Viewer
 firefox uml/pyreverse/classes_diagram.png    # Firefox browser
 
 # View SVG (interactive - zoom/pan in browser)
-firefox uml/pydeps/dependencies.svg
+firefox uml/pydeps/dependencies_shallow.svg   # Direct imports only
+firefox uml/pydeps/dependencies_moderate.svg  # With secondary imports
+firefox uml/pydeps/dependencies_deep.svg      # Full dependency tree
 ```
 
 ### Install UML Dependencies
