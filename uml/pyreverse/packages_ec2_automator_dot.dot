@@ -1,0 +1,33 @@
+digraph "packages_ec2_automator_dot" {
+rankdir=BT
+charset="utf-8"
+"app" [color="black", label=<app>, shape="box", style="solid"];
+"app.aws" [color="black", label=<app.aws>, shape="box", style="solid"];
+"app.aws.ec2" [color="black", label=<app.aws.ec2>, shape="box", style="solid"];
+"app.aws.ses" [color="black", label=<app.aws.ses>, shape="box", style="solid"];
+"app.background" [color="black", label=<app.background>, shape="box", style="solid"];
+"app.config" [color="black", label=<app.config>, shape="box", style="solid"];
+"app.endpoints" [color="black", label=<app.endpoints>, shape="box", style="solid"];
+"app.logging_config" [color="black", label=<app.logging_config>, shape="box", style="solid"];
+"app.main" [color="black", label=<app.main>, shape="box", style="solid"];
+"app.middleware" [color="black", label=<app.middleware>, shape="box", style="solid"];
+"app.models" [color="black", label=<app.models>, shape="box", style="solid"];
+"app.tasks" [color="black", label=<app.tasks>, shape="box", style="solid"];
+"app.utils" [color="black", label=<app.utils>, shape="box", style="solid"];
+"app.aws.ec2" -> "app.config" [arrowhead="open", arrowtail="none"];
+"app.aws.ec2" -> "app.logging_config" [arrowhead="open", arrowtail="none"];
+"app.aws.ses" -> "app.logging_config" [arrowhead="open", arrowtail="none"];
+"app.background" -> "app.aws.ec2" [arrowhead="open", arrowtail="none"];
+"app.background" -> "app.aws.ses" [arrowhead="open", arrowtail="none"];
+"app.background" -> "app.logging_config" [arrowhead="open", arrowtail="none"];
+"app.background" -> "app.tasks" [arrowhead="open", arrowtail="none"];
+"app.endpoints" -> "app.aws.ec2" [arrowhead="open", arrowtail="none"];
+"app.endpoints" -> "app.background" [arrowhead="open", arrowtail="none"];
+"app.endpoints" -> "app.logging_config" [arrowhead="open", arrowtail="none"];
+"app.endpoints" -> "app.models" [arrowhead="open", arrowtail="none"];
+"app.endpoints" -> "app.tasks" [arrowhead="open", arrowtail="none"];
+"app.main" -> "app.endpoints" [arrowhead="open", arrowtail="none"];
+"app.main" -> "app.logging_config" [arrowhead="open", arrowtail="none"];
+"app.main" -> "app.models" [arrowhead="open", arrowtail="none"];
+"app.tasks" -> "app.config" [arrowhead="open", arrowtail="none"];
+}

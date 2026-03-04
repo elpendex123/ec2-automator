@@ -735,6 +735,122 @@ All done! 2 files reformatted.
 
 ---
 
+## UML Diagrams & Architecture Visualization
+
+### Generate All Diagrams (Master Script)
+```bash
+bash uml/jenkins/generate_all_diagrams.sh
+```
+**What it does:** Runs all 6 diagram generation tools and creates 17+ diagrams
+**Expected output:**
+```
+EC2-Automator: Comprehensive UML Diagram Generation
+===================================================
+Phase 1: Auto-Generation Tools
+✓ pyreverse (pylint) completed successfully
+✓ py2puml (Python → PlantUML) completed successfully
+✓ pydeps (Dependency Analysis) completed successfully
+
+Phase 2: Manual UML Diagrams
+✓ PlantUML (Manual UML) completed successfully
+
+Phase 3: Architecture Diagrams
+✓ diagrams (AWS Architecture) completed successfully
+
+Diagram Generation Summary
+==========================
+Tools Run:    6
+Passed:       6
+Failed:       0
+
+Generated Files: 17 diagrams (9 PNG, 8 SVG, 6 PUML)
+```
+
+### Generate Individual Tool Diagrams
+
+#### pyreverse (Auto-generated class & package diagrams)
+```bash
+cd uml/pyreverse && bash generate.sh
+```
+**What it does:** Generates class and package diagrams from Python code
+**Output files:**
+- `classes_diagram.png` - Pydantic model hierarchy
+- `packages_diagram.png` - Module/package structure
+
+#### PlantUML (Professional UML diagrams)
+```bash
+cd uml/plantuml && bash generate.sh
+```
+**What it does:** Converts 5 PlantUML source files to PNG and SVG
+**Output files:**
+- `sequence_launch.png/svg` - Instance launch workflow
+- `activity_background.png/svg` - Background task processing
+- `class_models.png/svg` - Pydantic model classes
+- `component_architecture.png/svg` - Component relationships
+- `deployment_aws.png/svg` - AWS infrastructure
+
+#### pydeps (Module dependency analysis)
+```bash
+cd uml/pydeps && bash generate.sh
+```
+**What it does:** Analyzes and visualizes Python module dependencies
+**Output files:**
+- `dependencies.svg` - High-level dependencies
+- `dependencies_detailed.svg` - All import relationships
+- `dependencies_clustered.svg` - Grouped by package
+
+#### diagrams (AWS architecture)
+```bash
+cd uml/diagrams && python3 generate_architecture.py
+```
+**What it does:** Generates AWS architecture diagrams from Python code
+**Output files:**
+- `ec2_automator_architecture.png` - System architecture
+- `deployment_flow.png` - Instance launch workflow
+- `free_tier_topology.png` - Free tier resources
+
+#### Mermaid (GitHub-native diagrams)
+No generation needed - view directly in GitHub:
+```bash
+# View in browser - diagrams auto-render on GitHub:
+cat uml/mermaid/class_diagram.md
+cat uml/mermaid/sequence_diagram.md
+cat uml/mermaid/component_diagram.md
+```
+
+### View Generated Diagrams
+```bash
+# List all generated diagrams
+find uml -type f \( -name "*.png" -o -name "*.svg" \) -exec ls -lh {} \;
+
+# Open PNG in default viewer
+eog uml/plantuml/sequence_launch.png         # GNOME Image Viewer
+firefox uml/pyreverse/classes_diagram.png    # Firefox browser
+
+# View SVG (interactive - zoom/pan in browser)
+firefox uml/pydeps/dependencies.svg
+```
+
+### Install UML Dependencies
+```bash
+# Install Python packages
+pip install -r requirements-dev.txt
+
+# Install system dependencies (Bodhi Linux)
+sudo apt-get install -y default-jre plantuml graphviz graphviz-dev
+```
+
+### Test Diagram Generation
+```bash
+# Read and follow complete testing guide
+cat uml/TESTING.md
+
+# Or run individual tool tests
+cd uml/<tool> && bash generate.sh
+```
+
+---
+
 ## Docker (Phase 6+)
 
 ### Build Docker Image

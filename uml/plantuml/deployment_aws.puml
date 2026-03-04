@@ -1,0 +1,13 @@
+@startuml
+
+cloud "AWS" {
+    node EC2
+    node SES
+}
+
+component "FastAPI" as api
+
+api --> EC2: Provision Instances
+api --> SES: Send Email
+
+@enduml

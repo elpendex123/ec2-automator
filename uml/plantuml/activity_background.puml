@@ -1,0 +1,26 @@
+@startuml
+
+start
+:Receive launch request;
+:Validate with Pydantic;
+:Create task in store;
+:Return HTTP 202;
+:Start background worker;
+:Initialize EC2 client;
+:Prepare UserData script;
+
+if (Instance creation succeeds?) then (YES)
+  :Extract instance ID;
+  :Apply instance tags;
+  :Poll instance status;
+  :Update task: SUCCESS;
+  :Send success email;
+else (NO)
+  :Catch exception;
+  :Log error details;
+  :Update task: FAILED;
+  :Send failure email;
+endif
+
+stop
+@enduml

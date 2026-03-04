@@ -1,0 +1,20 @@
+@startuml
+participant User
+participant API
+participant TaskStore
+participant Worker
+participant EC2
+participant SES
+
+User -> API: POST /launch
+API -> API: Validate
+API -> TaskStore: create_task()
+TaskStore --> API: task_id
+API --> User: 202 Accepted
+API -> Worker: asyncio.create_task()
+
+Worker -> EC2: run_instances()
+EC2 --> Worker: instance_id
+Worker -> TaskStore: update_task()
+Worker -> SES: send_email()
+@enduml

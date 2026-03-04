@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="315px" preserveAspectRatio="none" style="width:594px;height:315px;" version="1.1" viewBox="0 0 594 315" width="594px" zoomAndPan="magnify"><defs><filter height="300%" id="f14kigup5czv62" width="300%" x="-1" y="-1"><feGaussianBlur result="blurOut" stdDeviation="2.0"/><feColorMatrix in="blurOut" result="blurOut2" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0"/><feOffset dx="4.0" dy="4.0" in="blurOut2" result="blurOut3"/><feBlend in="SourceGraphic" in2="blurOut3" mode="normal"/></filter></defs><g><!--MD5=[5f1e05b2f8522cd4211c052e1c428658]
+cluster FastAPI Application--><polygon fill="#FFFFFF" filter="url(#f14kigup5czv62)" points="22,24,178,24,185,46.2969,302,46.2969,302,303,22,303,22,24" style="stroke: #000000; stroke-width: 1.5;"/><line style="stroke: #000000; stroke-width: 1.5;" x1="22" x2="185" y1="46.2969" y2="46.2969"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="150" x="26" y="38.9951">FastAPI Application</text><!--MD5=[54453937654c94b6289de15ae8266e8f]
+cluster AWS Integration--><polygon fill="#FFFFFF" filter="url(#f14kigup5czv62)" points="326,216,459,216,466,238.2969,572,238.2969,572,303,326,303,326,216" style="stroke: #000000; stroke-width: 1.5;"/><line style="stroke: #000000; stroke-width: 1.5;" x1="326" x2="466" y1="238.2969" y2="238.2969"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="127" x="330" y="230.9951">AWS Integration</text><!--MD5=[1cb6dc054b80c7feb4480d227678ad18]
+entity endpoints--><rect fill="#FEFECE" filter="url(#f14kigup5czv62)" height="36.2969" style="stroke: #A80036; stroke-width: 1.5;" width="90" x="101" y="59"/><rect fill="#FEFECE" height="5" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="96" y="64"/><rect fill="#FEFECE" height="5" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="96" y="85.2969"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="70" x="111" y="81.9951">endpoints</text><!--MD5=[aa3b458352135463a5a0f2d2a48ef4d9]
+entity models--><rect fill="#FEFECE" filter="url(#f14kigup5czv62)" height="36.2969" style="stroke: #A80036; stroke-width: 1.5;" width="71" x="38.5" y="155"/><rect fill="#FEFECE" height="5" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="33.5" y="160"/><rect fill="#FEFECE" height="5" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="33.5" y="181.2969"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="51" x="48.5" y="177.9951">models</text><!--MD5=[cd298f09fb4b3676b6942829b3e822bf]
+entity background--><rect fill="#FEFECE" filter="url(#f14kigup5czv62)" height="36.2969" style="stroke: #A80036; stroke-width: 1.5;" width="103" x="182.5" y="155"/><rect fill="#FEFECE" height="5" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="177.5" y="160"/><rect fill="#FEFECE" height="5" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="177.5" y="181.2969"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="83" x="192.5" y="177.9951">background</text><!--MD5=[b4a82ef0e67a03c4072f6c2be9006ed8]
+entity tasks--><rect fill="#FEFECE" filter="url(#f14kigup5czv62)" height="36.2969" style="stroke: #A80036; stroke-width: 1.5;" width="57" x="118.5" y="251"/><rect fill="#FEFECE" height="5" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="113.5" y="256"/><rect fill="#FEFECE" height="5" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="113.5" y="277.2969"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="37" x="128.5" y="273.9951">tasks</text><!--MD5=[e3b0e2294a7d8d4f01b56765b435c024]
+entity logging--><rect fill="#FEFECE" filter="url(#f14kigup5czv62)" height="36.2969" style="stroke: #A80036; stroke-width: 1.5;" width="71" x="212.5" y="251"/><rect fill="#FEFECE" height="5" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="207.5" y="256"/><rect fill="#FEFECE" height="5" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="207.5" y="277.2969"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="51" x="222.5" y="273.9951">logging</text><!--MD5=[e077311748b3295037a51448c3df64be]
+entity ec2_client--><rect fill="#FEFECE" filter="url(#f14kigup5czv62)" height="36.2969" style="stroke: #A80036; stroke-width: 1.5;" width="90" x="466" y="251"/><rect fill="#FEFECE" height="5" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="461" y="256"/><rect fill="#FEFECE" height="5" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="461" y="277.2969"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="70" x="476" y="273.9951">ec2_client</text><!--MD5=[87d1bea56d44ee77ebca951689257773]
+entity ses_client--><rect fill="#FEFECE" filter="url(#f14kigup5czv62)" height="36.2969" style="stroke: #A80036; stroke-width: 1.5;" width="89" x="341.5" y="251"/><rect fill="#FEFECE" height="5" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="336.5" y="256"/><rect fill="#FEFECE" height="5" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="336.5" y="277.2969"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="69" x="351.5" y="273.9951">ses_client</text><!--MD5=[4170395e27df931bf38ffe69d99fde6d]
+link endpoints to models--><path d="M132.79,95.24 C120.82,110.88 103.12,133.98 90.28,150.75 " fill="none" id="endpoints-&gt;models" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="87.12,154.87,95.7689,150.1587,90.161,150.901,89.4186,145.2931,87.12,154.87" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[9601578e51f4be58adb088a8530ec662]
+link endpoints to tasks--><path d="M146.09,95.2 C146.27,129.67 146.68,207.23 146.88,245.61 " fill="none" id="endpoints-&gt;tasks" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="146.91,250.98,150.8585,241.9573,146.8814,245.9801,142.8586,242.003,146.91,250.98" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[ce71c3aae4151f9cddbeae7ba1230d15]
+link endpoints to background--><path d="M162.14,95.24 C176.9,111.01 198.77,134.37 214.5,151.17 " fill="none" id="endpoints-&gt;background" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="217.96,154.87,214.7239,145.568,214.5408,151.2219,208.8869,151.0387,217.96,154.87" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[9966bc19d0e4d79aeb68e21585c6cdb4]
+link background to ec2_client--><path d="M285.88,173.72 C330.91,175.42 396.75,182.65 448,208 C466.4,217.1 483.03,233.46 494.57,246.79 " fill="none" id="background-&gt;ec2_client" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="497.99,250.82,495.2285,241.3662,494.7596,247.0036,489.1223,246.5348,497.99,250.82" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[1ae271c38ba62615dd80956ca752b15b]
+link background to ses_client--><path d="M270.92,191.14 C281.16,196.25 292.16,202.08 302,208 C322.24,220.19 343.91,235.73 360.17,247.95 " fill="none" id="background-&gt;ses_client" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="364.18,250.98,359.4145,242.3609,360.192,247.964,354.5889,248.7416,364.18,250.98" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[58654a382b2b2697f03bd84d3a505964]
+link background to tasks--><path d="M212.72,191.34 C206.79,196.49 200.47,202.29 195,208 C183.41,220.09 171.64,234.76 162.65,246.56 " fill="none" id="background-&gt;tasks" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="159.48,250.77,168.0909,245.9896,162.4891,246.7769,161.7019,241.175,159.48,250.77" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[a46678e4b1eb123e25243d55b5a2c88f]
+link background to logging--><path d="M236.57,191.24 C238.86,206.61 242.22,229.2 244.71,245.89 " fill="none" id="background-&gt;logging" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="245.45,250.87,248.068,241.3755,244.7069,245.9255,240.1568,242.5644,245.45,250.87" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[212f01fcd2c4825a1a2c80fef8d4b042]
+link ec2_client to logging--><path d="M495.18,250.86 C483.16,237.81 465.71,220.4 448,208 C440.92,203.04 438.93,201.44 430.5,199.5 C392.82,190.83 381.18,190.83 343.5,199.5 C313.4,206.42 285.66,229.26 267.93,246.88 " fill="none" id="ec2_client-&gt;logging" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="264.08,250.78,273.2436,247.1705,267.5869,247.2161,267.5413,241.5594,264.08,250.78" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[ea5bac279be1bd5bc9f7890fc9b477a5]
+@startuml
+
+package "FastAPI Application" {
+    component endpoints
+    component models
+    component background
+    component tasks
+    component logging
+}
+
+package "AWS Integration" {
+    component ec2_client
+    component ses_client
+}
+
+endpoints - -> models
+endpoints - -> tasks
+endpoints - -> background
+background - -> ec2_client
+background - -> ses_client
+background - -> tasks
+background - -> logging
+ec2_client - -> logging
+
+@enduml
+
+PlantUML version 1.2020.02(Sun Mar 01 05:22:07 EST 2020)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Java Version: 17.0.17+10-Ubuntu-122.04
+Operating System: Linux
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>

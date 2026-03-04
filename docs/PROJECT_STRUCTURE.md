@@ -76,6 +76,17 @@ dark_wolf_senior_software_engineer/
 │   ├── DEPLOYMENT.md                  # Deployment procedures
 │   └── TROUBLESHOOTING.md             # Common issues & solutions
 │
+├── uml/                               # UML Diagrams & Architecture
+│   ├── README.md                      # Diagram generation guide
+│   ├── TESTING.md                     # Testing procedures
+│   ├── pyreverse/                     # Class & package diagrams
+│   ├── plantuml/                      # Professional UML diagrams
+│   ├── py2puml/                       # Auto-generated class diagrams
+│   ├── pydeps/                        # Dependency graphs
+│   ├── diagrams/                      # AWS architecture diagrams
+│   ├── mermaid/                       # GitHub-native diagrams
+│   └── jenkins/                       # CI/CD auto-generation pipeline
+│
 ├── scripts/                           # Utility scripts
 │   ├── setup_aws.sh                   # AWS infrastructure setup
 │   ├── setup_jenkins.sh               # Jenkins configuration
@@ -156,6 +167,22 @@ Automated setup and deployment:
 - **setup_jenkins.sh** - Jenkins job and credential configuration
 - **deploy.sh** - Deployment to production
 
+### `/uml`
+Architecture visualization and UML diagrams:
+- **README.md** - Comprehensive guide to 6 professional diagram generation tools
+- **TESTING.md** - Testing procedures and verification checklist
+- **pyreverse/** - Auto-generated class and package diagrams (4 PNG files)
+- **plantuml/** - 5 professional UML diagram types (10 PNG + SVG files)
+  - Sequence diagrams (instance launch workflow)
+  - Activity diagrams (background task processing)
+  - Component diagrams (architecture relationships)
+  - Deployment diagrams (AWS infrastructure)
+  - Class diagrams (Pydantic models)
+- **pydeps/** - Module dependency analysis (3 interactive SVG graphs)
+- **diagrams/** - AWS architecture diagrams (Python code generation)
+- **mermaid/** - GitHub-native markdown diagrams (auto-renders in GitHub)
+- **jenkins/** - Jenkins pipeline for automatic diagram generation on code changes
+
 ### `/iac` (Optional)
 Infrastructure as Code:
 - **terraform/** - Terraform modules for AWS resources
@@ -208,6 +235,16 @@ When starting implementation, create files in this order:
 10. **Documentation**
     - `README.md`
     - `docs/*.md` files
+
+11. **Architecture & Diagrams**
+    - `uml/` - UML diagram generation system with 6 professional tools
+    - `uml/README.md` - Comprehensive diagram generation guide
+    - `uml/pyreverse/` - Auto-generated class & package diagrams
+    - `uml/plantuml/` - 5 professional UML diagram types (sequence, activity, component, deployment, class)
+    - `uml/pydeps/` - Module dependency analysis and visualization
+    - `uml/diagrams/` - AWS architecture diagrams
+    - `uml/mermaid/` - GitHub-native markdown diagrams
+    - `uml/jenkins/` - Jenkins CI/CD pipeline for automatic diagram generation
 
 ---
 

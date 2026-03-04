@@ -1,0 +1,12 @@
+digraph "classes_ec2_automator_dot" {
+rankdir=BT
+charset="utf-8"
+"app.models.LaunchInstanceRequest.Config" [color="black", fontcolor="black", label=<{Config|json_schema_extra : dict<br ALIGN="LEFT"/>|}>, shape="record", style="solid"];
+"app.models.ErrorResponse" [color="black", fontcolor="black", label=<{ErrorResponse|detail : Optional[str]<br ALIGN="LEFT"/>error : str<br ALIGN="LEFT"/>status_code : int<br ALIGN="LEFT"/>|}>, shape="record", style="solid"];
+"app.models.InstanceOption" [color="black", fontcolor="black", label=<{InstanceOption|apps : List[str]<br ALIGN="LEFT"/>instance_types : List[str]<br ALIGN="LEFT"/>|}>, shape="record", style="solid"];
+"app.logging_config.JSONFormatter" [color="black", fontcolor="black", label=<{JSONFormatter|<br ALIGN="LEFT"/>|format(record: logging.LogRecord): str<br ALIGN="LEFT"/>}>, shape="record", style="solid"];
+"app.models.LaunchInstanceRequest" [color="black", fontcolor="black", label=<{LaunchInstanceRequest|app_name : Literal['nginx', 'mysql', 'httpd', 'mongo']<br ALIGN="LEFT"/>instance_name : str<br ALIGN="LEFT"/>instance_type : Literal['t3.micro', 't3.small']<br ALIGN="LEFT"/>owner : str<br ALIGN="LEFT"/>|}>, shape="record", style="solid"];
+"app.models.LaunchInstanceResponse" [color="black", fontcolor="black", label=<{LaunchInstanceResponse|message : str<br ALIGN="LEFT"/>status : str<br ALIGN="LEFT"/>task_id : str<br ALIGN="LEFT"/>|}>, shape="record", style="solid"];
+"app.models.TaskStatus" [color="black", fontcolor="black", label=<{TaskStatus|completed_at : Optional[str]<br ALIGN="LEFT"/>created_at : Optional[str]<br ALIGN="LEFT"/>error : Optional[str]<br ALIGN="LEFT"/>instance_id : Optional[str]<br ALIGN="LEFT"/>status : Literal['pending', 'running', 'completed', 'failed']<br ALIGN="LEFT"/>task_id : str<br ALIGN="LEFT"/>|}>, shape="record", style="solid"];
+"app.models.TerminateInstanceResponse" [color="black", fontcolor="black", label=<{TerminateInstanceResponse|instance_id : str<br ALIGN="LEFT"/>message : str<br ALIGN="LEFT"/>|}>, shape="record", style="solid"];
+}

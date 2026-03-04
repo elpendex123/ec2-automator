@@ -1,0 +1,139 @@
+@startuml
+skinparam backgroundColor #FEFEFE
+skinparam ClassBackgroundColor #E8F4F8
+skinparam ClassBorderColor #1BA0C8
+skinparam ArrowColor #1BA0C8
+
+abstract class BaseModel <<pydantic>> {
+    - dict
+    - schema()
+    + model_validate()
+    + model_dump()
+    + model_dump_json()
+}
+
+class InstanceOption {
+    - instance_types: List[str]
+    - available_apps: List[str]
+    ---
+    Example output from GET /options
+    Shows what user can provision
+}
+
+class LaunchInstanceRequest {
+    - instance_name: str
+    - instance_type: str
+    - app_name: str
+    - owner: str
+    ---
+    Validation:
+    - instance_name: non-empty
+    - instance_type: in allowed list
+    - app_name: in AVAILABLE_APPS
+    - owner: valid email-like format
+}
+
+class LaunchInstanceResponse {
+    - task_id: str
+    - message: str
+    ---
+    HTTP 202 Accepted Response
+    User polls GET /status/{task_id}
+}
+
+class TaskStatus {
+    - task_id: str
+    - status: str
+    - instance_id: Optional[str]
+    - public_ip: Optional[str]
+    - message: str
+    ---
+    Status values:
+    - PENDING: Provisioning in progress
+    - SUCCESS: Instance created
+    - FAILED: Provisioning failed
+}
+
+class TerminateInstanceResponse {
+    - message: str
+    - instance_id: str
+    ---
+    HTTP 200 Response
+    Instance terminated immediately
+}
+
+class ErrorResponse {
+    - error: str
+    - message: str
+    - status_code: int
+    ---
+    Used for HTTP error responses
+    400: Bad request
+    404: Not found
+    500: Server error
+}
+
+' Inheritance relationships
+BaseModel <|-- InstanceOption
+BaseModel <|-- LaunchInstanceRequest
+BaseModel <|-- LaunchInstanceResponse
+BaseModel <|-- TaskStatus
+BaseModel <|-- TerminateInstanceResponse
+BaseModel <|-- ErrorResponse
+
+' Relationships
+LaunchInstanceRequest "1" --> "1" LaunchInstanceResponse: creates
+LaunchInstanceResponse "1" --> "1" TaskStatus: polls
+TaskStatus "1" --> "0..1" TerminateInstanceResponse: terminates
+
+note right of BaseModel
+  All models inherit from
+  pydantic.BaseModel for:
+  - Automatic validation
+  - Type checking
+  - JSON serialization
+  - Documentation
+  - Schema generation
+end note
+
+note right of LaunchInstanceRequest
+  **Example:**
+  {
+    "instance_name": "db-server-01",
+    "instance_type": "t3.micro",
+    "app_name": "mysql",
+    "owner": "admin@example.com"
+  }
+end note
+
+note right of TaskStatus
+  **Example:**
+  {
+    "task_id": "uuid-here",
+    "status": "SUCCESS",
+    "instance_id": "i-1234567890abcdef0",
+    "public_ip": "54.123.45.67",
+    "message": "Instance provisioned successfully"
+  }
+end note
+
+note right of InstanceOption
+  **Example:**
+  {
+    "instance_types": ["t3.micro", "t3.small"],
+    "available_apps": ["nginx", "mysql", "httpd", "mongo"]
+  }
+end note
+
+note bottom of BaseModel
+  Model Inheritance Hierarchy:
+
+  All models implement:
+  ✓ Field validation (Pydantic)
+  ✓ Type safety
+  ✓ JSON serialization
+  ✓ OpenAPI documentation
+  ✓ Request/response automatic conversion
+end note
+
+@enduml

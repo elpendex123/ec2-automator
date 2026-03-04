@@ -227,6 +227,16 @@ ec2-automator/
 │   ├── DEPLOYMENT_CHECKLIST.md
 │   ├── PROJECT_STRUCTURE.md
 │   └── JENKINS_SETUP.md
+├── uml/                   # UML Diagrams & Architecture Visualization
+│   ├── README.md          # UML generation guide (6 tools, 17+ diagrams)
+│   ├── TESTING.md         # Testing procedures for diagram tools
+│   ├── pyreverse/         # Auto-generated class & package diagrams
+│   ├── plantuml/          # 5 professional UML diagram types
+│   ├── py2puml/           # Auto-generated PlantUML from Python code
+│   ├── pydeps/            # Module dependency graphs
+│   ├── diagrams/          # AWS architecture diagrams
+│   ├── mermaid/           # GitHub-native markdown diagrams
+│   └── jenkins/           # Jenkins pipeline for diagram auto-generation
 ├── jenkins/               # Jenkins CI/CD pipeline
 │   ├── Jenkinsfile.setup  # Install dependencies (run once)
 │   ├── Jenkinsfile.lint   # Code quality checks (manual)
@@ -460,6 +470,13 @@ See [scripts/README.md](scripts/README.md) for detailed documentation on all scr
   - cleanup-local-deployment.sh - Stop local services
   - cleanup-docker.sh - Remove Docker containers
   - test_api.sh - Test API endpoints
+
+### Architecture & Diagrams
+- **[uml/README.md](uml/README.md)** - UML diagram generation guide
+  - 6 professional diagram tools with examples
+  - 17+ generated diagrams (class, sequence, component, deployment, dependency)
+  - Installation and usage for each tool
+  - CI/CD integration via Jenkins pipeline
 
 ### API Documentation
 - **Swagger UI:** http://localhost:8000/docs - Interactive API documentation with try-it-out capability

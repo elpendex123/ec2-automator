@@ -1,0 +1,25 @@
+@startuml
+
+package "FastAPI Application" {
+    component endpoints
+    component models
+    component background
+    component tasks
+    component logging
+}
+
+package "AWS Integration" {
+    component ec2_client
+    component ses_client
+}
+
+endpoints --> models
+endpoints --> tasks
+endpoints --> background
+background --> ec2_client
+background --> ses_client
+background --> tasks
+background --> logging
+ec2_client --> logging
+
+@enduml

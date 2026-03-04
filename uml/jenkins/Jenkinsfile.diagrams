@@ -1,0 +1,352 @@
+// Jenkins Pipeline for EC2-Automator UML Diagram Generation
+// Automatically generates diagrams on code changes
+//
+// Installation:
+// 1. Copy this file to: uml/jenkins/Jenkinsfile.diagrams
+// 2. In Jenkins, create new Pipeline job
+// 3. Point to this Jenkinsfile
+// 4. Set build trigger to "Poll SCM" or webhook
+// 5. Configure email notifications
+
+pipeline {
+    agent any
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '30'))
+        timeout(time: 10, unit: 'MINUTES')
+        timestamps()
+    }
+
+    triggers {
+        // Poll SCM every 15 minutes for changes
+        pollSCM('H/15 * * * *')
+
+        // Alternative: GitHub webhook trigger
+        // githubPush()
+    }
+
+    environment {
+        PROJECT_NAME = 'EC2-Automator'
+        ARTIFACT_DIR = 'uml'
+        PYTHON_VERSION = '3.12'
+    }
+
+    stages {
+        stage('Initialize') {
+            steps {
+                script {
+                    echo "=================================================="
+                    echo "Build: ${env.BUILD_NUMBER}"
+                    echo "Git Commit: ${env.GIT_COMMIT}"
+                    echo "Git Branch: ${env.GIT_BRANCH}"
+                    echo "=================================================="
+                }
+
+                deleteDir()
+                checkout scm
+            }
+        }
+
+        stage('Setup Dependencies') {
+            steps {
+                script {
+                    echo "Installing system dependencies..."
+                }
+
+                // Note: Requires sudo access or container with pre-installed tools
+                sh '''
+                    set -e
+
+                    # Update package manager
+                    apt-get update || true
+
+                    # Install Java runtime (for PlantUML)
+                    apt-get install -y default-jre || echo "Java already installed"
+
+                    # Install PlantUML
+                    apt-get install -y plantuml || echo "PlantUML already installed"
+
+                    # Install Graphviz (for pydeps and diagrams)
+                    apt-get install -y graphviz graphviz-dev || echo "Graphviz already installed"
+
+                    # Verify installations
+                    echo "Verification:"
+                    java -version || echo "Java check failed"
+                    plantuml -version || echo "PlantUML check failed"
+                    which dot || echo "Graphviz check failed"
+                '''
+            }
+        }
+
+        stage('Install Python Dependencies') {
+            steps {
+                script {
+                    echo "Installing Python dependencies..."
+                }
+
+                sh '''
+                    set -e
+
+                    # Install/upgrade pip
+                    python3 -m pip install --upgrade pip
+
+                    # Install UML dependencies from requirements-dev.txt
+                    python3 -m pip install -r requirements-dev.txt
+
+                    # Verify key tools
+                    echo "Python dependencies verification:"
+                    python3 -c "import pylint; print('pylint:', pylint.__version__)"
+                    python3 -c "import py2puml; print('py2puml installed')"
+                    python3 -c "import pydeps; print('pydeps installed')"
+                    python3 -c "import diagrams; print('diagrams installed')"
+                '''
+            }
+        }
+
+        stage('Generate Diagrams') {
+            steps {
+                script {
+                    echo "Generating UML diagrams using all tools..."
+                }
+
+                sh '''
+                    set -e
+
+                    # Make scripts executable
+                    chmod +x uml/jenkins/generate_all_diagrams.sh
+                    chmod +x uml/*/generate.sh
+
+                    # Run master generation script
+                    bash uml/jenkins/generate_all_diagrams.sh
+                '''
+            }
+        }
+
+        stage('Verify Outputs') {
+            steps {
+                script {
+                    echo "Verifying generated diagram files..."
+                }
+
+                sh '''
+                    set -e
+
+                    echo "Diagram files generated:"
+                    echo ""
+
+                    # Count files
+                    PNG_COUNT=$(find uml -name "*.png" -type f | wc -l)
+                    SVG_COUNT=$(find uml -name "*.svg" -type f | wc -l)
+                    PUML_COUNT=$(find uml -name "*.puml" -type f | wc -l)
+
+                    echo "Summary:"
+                    echo "  PNG files:  $PNG_COUNT"
+                    echo "  SVG files:  $SVG_COUNT"
+                    echo "  PUML files: $PUML_COUNT"
+                    echo ""
+
+                    if [ $PNG_COUNT -lt 5 ]; then
+                        echo "WARNING: Expected at least 5 PNG files"
+                    fi
+
+                    # List all generated files
+                    echo "Generated diagram files:"
+                    find uml -type f \( -name "*.png" -o -name "*.svg" \) | sort
+                '''
+            }
+        }
+
+        stage('Archive Artifacts') {
+            steps {
+                script {
+                    echo "Archiving diagram artifacts..."
+                }
+
+                // Archive PNG and SVG files
+                archiveArtifacts(
+                    artifacts: 'uml/**/*.png, uml/**/*.svg, uml/**/*.puml',
+                    fingerprint: true,
+                    allowEmptyArchive: false
+                )
+
+                // Keep artifacts for 30 days
+                script {
+                    def buildLog = currentBuild.description
+                    if (buildLog == null) {
+                        currentBuild.description = "Diagrams archived: ${env.BUILD_NUMBER}"
+                    }
+                }
+            }
+        }
+
+        stage('Update Documentation (Optional)') {
+            when {
+                branch 'main'
+            }
+            steps {
+                script {
+                    echo "Optionally update documentation with new diagrams..."
+                }
+
+                sh '''
+                    # Optional: Copy diagrams to docs directory
+                    if [ -d "docs/architecture" ]; then
+                        echo "Copying diagrams to docs..."
+                        cp -r uml/ docs/architecture/
+                    else
+                        echo "docs/architecture not found, skipping"
+                    fi
+
+                    # Optional: Generate a summary
+                    echo "Diagram generation completed at $(date)" > /tmp/diagram_summary.txt
+                '''
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                echo "Post-build cleanup and reporting..."
+            }
+
+            // Clean workspace if explicitly requested
+            // cleanWs()
+        }
+
+        success {
+            script {
+                echo "✓ All diagrams generated successfully"
+
+                // Send success notification
+                emailext(
+                    subject: "✓ UML Diagrams Generated: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                    body: """
+                        UML diagram generation successful.
+
+                        Build: ${env.BUILD_NUMBER}
+                        Status: SUCCESS
+                        Timestamp: ${env.BUILD_TIMESTAMP}
+                        Git Commit: ${env.GIT_COMMIT}
+
+                        Artifacts available in Jenkins build #${env.BUILD_NUMBER}
+
+                        To review diagrams:
+                        1. Download artifacts from Jenkins
+                        2. Open PNG/SVG files in browser or image viewer
+                        3. Check diagrams for accuracy
+
+                        Diagrams include:
+                        - pyreverse: Class and package diagrams
+                        - PlantUML: Sequence, activity, component, deployment diagrams
+                        - py2puml: Auto-generated class diagrams
+                        - pydeps: Module dependency graphs
+                        - diagrams: AWS architecture diagrams
+                        - Mermaid: GitHub-native diagrams (in markdown)
+
+                        View full report in Jenkins console output.
+                    """.stripIndent(),
+                    recipientProviders: [developers(), requestor()],
+                    to: '${DEFAULT_RECIPIENTS}',
+                    attachmentsPattern: 'uml/**/*.png'
+                )
+            }
+        }
+
+        failure {
+            script {
+                echo "✗ Diagram generation failed"
+
+                // Send failure notification
+                emailext(
+                    subject: "✗ UML Diagram Generation Failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                    body: """
+                        UML diagram generation failed.
+
+                        Build: ${env.BUILD_NUMBER}
+                        Status: FAILURE
+                        Timestamp: ${env.BUILD_TIMESTAMP}
+                        Git Commit: ${env.GIT_COMMIT}
+
+                        Troubleshooting steps:
+                        1. Check Jenkins console log for error details
+                        2. Verify dependencies are installed:
+                           - Python 3.12+
+                           - Java runtime (for PlantUML)
+                           - PlantUML
+                           - Graphviz
+                        3. Run manual generation to debug:
+                           cd uml && bash jenkins/generate_all_diagrams.sh
+
+                        Common issues:
+                        - Missing system dependencies (plantuml, graphviz)
+                        - Outdated Python packages
+                        - Insufficient disk space
+                        - Permission issues
+
+                        View console output for details:
+                        ${env.BUILD_URL}console
+                    """.stripIndent(),
+                    recipientProviders: [developers(), requestor()],
+                    to: '${DEFAULT_RECIPIENTS}'
+                )
+            }
+        }
+
+        unstable {
+            script {
+                echo "⚠ Build completed with warnings"
+            }
+        }
+
+        aborted {
+            script {
+                echo "⊘ Build was aborted"
+            }
+        }
+    }
+}
+
+/*
+INSTALLATION GUIDE:
+==================
+
+1. Prerequisite: Jenkins with pipeline support
+
+2. System setup:
+   - Ensure Ubuntu/Debian-based agent
+   - Or configure Docker agent with pre-installed tools
+
+3. Create new Jenkins job:
+   - Type: Pipeline
+   - Name: "EC2-Automator-UML-Diagrams"
+   - Pipeline: "Pipeline script from SCM"
+   - SCM: Git
+   - Repository URL: <your-repo>
+   - Credentials: <your-credentials>
+   - Script Path: uml/jenkins/Jenkinsfile.diagrams
+
+4. Configure triggers:
+   Option A: Poll SCM
+   - Poll interval: H/15 * * * * (every 15 minutes)
+
+   Option B: GitHub webhook
+   - Setup webhook in GitHub settings
+   - Payload URL: https://jenkins.example.com/github-webhook/
+   - Content type: application/json
+   - Events: Push, Pull Request
+
+5. Configure notifications:
+   - Add email recipients in Jenkins Configuration
+   - Or configure webhook notifications
+
+6. First run:
+   - Manually trigger build
+   - Check console log for any issues
+   - Verify artifacts are archived
+
+7. Maintenance:
+   - Keep Jenkins plugins updated
+   - Monitor disk space for artifact storage
+   - Periodically review build logs
+*/
